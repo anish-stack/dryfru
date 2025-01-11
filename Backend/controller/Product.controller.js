@@ -131,7 +131,7 @@ exports.getProductById = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Product fetched successfully",
-            product,
+            data:product,
         });
     } catch (error) {
         res.status(500).json({

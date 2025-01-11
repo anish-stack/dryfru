@@ -7,13 +7,18 @@ import {
   Heart, 
   X, 
   ChevronRight,
-  Leaf
+  Leaf,
+  LogIn,
+  User
 } from 'lucide-react';
 import logo from './logo.png'
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const token = false;
+
+
 
   const announcements = [
     'Flat 30% off on Christmas & New Year Products',
@@ -123,6 +128,20 @@ const Header = () => {
                   0
                 </span>
               </Link>
+
+              {
+                token ? (
+                  <Link to="/dashboard" className="relative p-2 flex items-center gap-1 hover:bg-gray-100 rounded-full transition-colors">
+                    <User className="h-5 w-5 text-gray-700" />
+                    <span>User</span>
+                  </Link>
+                ):(                  
+                  <Link to="/login" className="relative p-2 flex items-center gap-1 hover:bg-gray-100 rounded-full transition-colors">
+                    <LogIn className="h-5 w-5 text-gray-700" />
+                    <span>Login</span>
+                  </Link>
+                )
+              }
 
               {/* Mobile Menu Button */}
               <button 

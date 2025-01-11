@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowRight, Leaf, Shield, Truck } from 'lucide-react';
 import almonds from './almonds.png'
+import { Link } from 'react-router-dom';
 const Hero = () => {
     return (
         <section className="relative min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden px-0 md:px-10">
@@ -34,13 +35,10 @@ const Hero = () => {
 
                         {/* CTA Buttons */}
                         <div className="flex flex-wrap gap-4">
-                            <button className="group flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300">
+                            <Link to="/shop" className="group flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300">
                                 Shop Collection
                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                            </button>
-                            <button className="flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300 border border-gray-200">
-                                Learn More
-                            </button>
+                            </Link>
                         </div>
 
                         {/* Features */}
