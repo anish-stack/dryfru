@@ -139,7 +139,7 @@ const Header = () => {
               </button>
 
               {/* Wishlist */}
-              <Link to="/wishlist" className="relative  p-2 hover:bg-gray-100 rounded-full transition-colors">
+              <Link  className="relative  p-2 hover:bg-gray-100 rounded-full transition-colors">
                 <Heart className="h-5 w-5 text-gray-700" />
                 <span className="absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                   {wishlist.length || 0}

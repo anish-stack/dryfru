@@ -4,17 +4,17 @@ import logo from './footlogo.png'
 
 const Footer = () => {
   const quickLinks = [
-    { name: 'About Us', href: '#' },
-    { name: 'Products', href: '#' },
-    { name: 'Recipes', href: '#' },
-    { name: 'Contact', href: '#' }
+    { name: 'Login', href: '/Login' },
+    { name: 'Shop', href: '/shop' },
+    // { name: 'Recipes', href: '#' },
+    { name: 'Cart', href: '/Cart' }
   ];
 
   const categories = [
-    { name: 'Almonds', href: '#' },
-    { name: 'Cashews', href: '#' },
-    { name: 'Pistachios', href: '#' },
-    { name: 'Mixed Nuts', href: '#' }
+    { name: 'Almonds', href: '/productpage/6780facfe800bca193163977' },
+    { name: 'Cashews', href: '/productpage/6780fae573f5c96b00a45915' },
+    { name: 'Pistachios', href: '/productpage/6780fb0073f5c96b00a45916' },
+    { name: ' Nuts', href: '//productpage/6780fa0ae800bca193163975' }
   ];
 
   const support = [
@@ -28,7 +28,7 @@ const Footer = () => {
     <footer className="relative bg-[#005D31] px-0 md:px-10">
       {/* Decorative top border */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-300 via-amber-500 to-amber-300"></div>
-      
+
       {/* Wave SVG */}
       <div className="absolute top-0 left-0 right-0 w-full overflow-hidden">
         <svg className="relative block w-full h-[50px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">

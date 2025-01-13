@@ -42,9 +42,9 @@ const ReceiptComponent = () => {
       });
       // console.log(response.data)
       setSelectedRating(rating)
-      if (selectedRating) {
+
         window.location.href = '/'
-      }
+
     } catch (error) {
       console.log("Failed to give rating", error)
     }

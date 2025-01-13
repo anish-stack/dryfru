@@ -30,7 +30,7 @@ const ProductShow = () => {
                 Premium hand-selected cashews, carefully processed to preserve their natural flavor and nutritional benefits. Perfect for snacking or culinary creations.
               </p>
               
-              <button className="px-8 py-3 border-2 border-[#B88E65] text-[#B88E65] rounded-full hover:bg-[#B88E65] hover:text-white transition-colors duration-300 font-medium">
+              <button onClick={()=>window.location.href=`/productpage/6780fae573f5c96b00a45915`} className="px-8 py-3 border-2 border-[#B88E65] text-[#B88E65] rounded-full hover:bg-[#B88E65] hover:text-white transition-colors duration-300 font-medium">
                 SHOP NOW
               </button>
             </div>

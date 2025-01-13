@@ -100,7 +100,7 @@ function Testimonial() {
     
             <div className="mt-16 text-center">
               <p className="text-black font-medium mb-4">Join our satisfied customers</p>
-              <button className="bg-[#005D31] hover:bg-[#005D31] text-white px-8 py-3 rounded-full font-medium transition-colors duration-300 shadow-lg hover:shadow-xl">
+              <button onClick={()=> window.location.href="/shop"} className="bg-[#005D31] hover:bg-[#005D31] text-white px-8 py-3 rounded-full font-medium transition-colors duration-300 shadow-lg hover:shadow-xl">
                 Shop Premium Dry Fruits
               </button>
             </div>
