@@ -25,7 +25,7 @@ function ProductCard({bg=true , title='Explore Our Categories'}) {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get('http://localhost:7400/api/v1/get-product')
+            const response = await axios.get('https://www.api.dyfru.com/api/v1/get-product')
             console.log(response.data)
             const productData = response?.data?.products || []
             if (productData.length === 0) {
@@ -44,94 +44,10 @@ function ProductCard({bg=true , title='Explore Our Categories'}) {
         fetchData()
     }, [])
 
-    // const productData = [
-    //     // {
-    //     //     id: 1,
-    //     //     name: 'PECAN NUTS',
-    //     //     tag: 'New',
-    //     //     discount: 10,
-    //     //     image: pecan,
-    //     //     shopBtn: "Add To Cart",
-    //     //     price: "500",
-    //     //     afterDisPrice: "AfterDis",
-    //     // },
-    //     // {
-    //     //     id: 2,
-    //     //     name: 'CALIFORNIA ALMONDS',
-    //     //     tag: 'New',
-    //     //     discount: 20,
-    //     //     image: almonds,
-    //     //     shopBtn: "Add To Cart",
-    //     //     price: "500",
-    //     //     afterDisPrice: "AfterDis",
-    //     // },
-    //     // {
-    //     //     id: 3,
-    //     //     name: 'CASHEW',
-    //     //     tag: 'New',
-    //     //     discount: 30,
-    //     //     image: cashew,
-    //     //     shopBtn: "Add To Cart",
-    //     //     price: "500",
-    //     //     afterDisPrice: "AfterDis",
-    //     // },
-    //     {
-    //         id: 4,
-    //         name: 'PISHTACHIO',
-    //         tag: 'New',
-    //         discount: 15,
-    //         image: pistachios,
-    //         shopBtn: "Add To Cart",
-    //         price: "500",
-    //         afterDisPrice: "AfterDis",
-    //     },
-    //     {
-    //         id: 5,
-    //         name: 'MIXED DRY FRUITS',
-    //         tag: 'New',
-    //         discount: 25,
-    //         image: mixed,
-    //         shopBtn: "Add To Cart",
-    //         price: "500",
-    //         afterDisPrice: "AfterDis",
-    //     },
-    //     {
-    //         id: 6,
-    //         name: 'WALNUTS',
-    //         tag: 'New',
-    //         discount: 25,
-    //         image: walnuts,
-    //         shopBtn: "Add To Cart",
-    //         price: "500",
-    //         afterDisPrice: "AfterDis",
-    //     },
-    //     {
-    //         id: 7,
-    //         name: 'KISHMISH',
-    //         tag: 'New',
-    //         discount: 25,
-    //         image: kismish,
-    //         shopBtn: "Add To Cart",
-    //         price: "500",
-    //         afterDisPrice: "AfterDis",
-    //     },
-    //     {
-    //         id: 8,
-    //         name: 'PEANUTS',
-    //         tag: 'New',
-    //         discount: 25,
-    //         image: peanuts,
-    //         shopBtn: "Add To Cart",
-    //         price: "500",
-    //         afterDisPrice: "AfterDis",
-    //     },
-
-    // ]
-
+    
     return (
         <section className={`relative py-16  px-0  ${bg ? 'bg-[#e8f4ec] md:px-8 ':' md:px-0'} `} >
-            {/* Background Pattern */}
-            {/* <div style={{ backgroundImage: `url(https://i.ibb.co/fD23zLF/autumn-composition-with-nuts-leaves.png)` }} className="absolute inset-0  opacity-30" /> */}
+          
             <div className="absolute inset-0  opacity-30" />
 
             <div className="max-w-[1400px] mx-auto px-4">

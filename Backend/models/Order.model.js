@@ -30,6 +30,10 @@ const orderSchema = new Schema({
             _id: false,
         },
     ],
+    isDeliveryFeePay: {
+        type: Boolean,
+        default: false
+    },
     totalAmount: {
         type: Number,
         required: true,
@@ -40,13 +44,22 @@ const orderSchema = new Schema({
     },
     paymentType: {
         type: String,
-        enum: ['online', 'offline'],
         required: true,
     },
     payment: {
-        method: { type: String,},
+        method: { type: String, },
         transactionId: { type: String },
         isPaid: { type: Boolean, default: false },
+        paymentInital: {
+            type: Date
+        },
+        phonepeOrderId: {
+            type: String
+        },
+        status: {
+            type: String,
+            default: 'pending',
+        },
         paidAt: { type: Date },
     },
     offerId: {
@@ -85,7 +98,10 @@ const orderSchema = new Schema({
         refundStatus: { type: String, enum: ['pending', 'completed', 'failed'], default: 'pending' },
         refundedAt: { type: Date },
     },
-
+    OrderProcessRating: {
+        type: Number,
+        default: 0
+    },
     shipment: {
         carrier: { type: String },
         trackingNumber: { type: String },

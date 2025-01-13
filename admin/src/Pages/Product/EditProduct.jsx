@@ -145,7 +145,7 @@ const EditProduct = () => {
 
   const handleFetchProductDetails = async () => {
     try {
-      const { data } = await axios.get(`http://localhost:7400/api/v1/get-product/${id}`)
+      const { data } = await axios.get(`https://www.api.dyfru.com/api/v1/get-product/${id}`)
       console.log(data.product)
       const productData = data.product
       setFormData(productData)
@@ -205,7 +205,7 @@ const EditProduct = () => {
 
         // Send the form data via Axios
         const { data } = await axios.post(
-            `http://localhost:7400/api/v1/update-product/${id}`,
+            `https://www.api.dyfru.com/api/v1/update-product/${id}`,
             formDataObject,
             {
                 headers: {

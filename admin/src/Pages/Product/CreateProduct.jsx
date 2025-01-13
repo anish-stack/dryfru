@@ -155,7 +155,7 @@ const CreateProduct = () => {
 
 
         try {
-            const data = await axios.post('http://localhost:7400/api/v1/add-new-product', formDataObject, {
+            const data = await axios.post('https://www.api.dyfru.com/api/v1/add-new-product', formDataObject, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

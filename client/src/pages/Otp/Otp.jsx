@@ -1,18 +1,24 @@
 import React, { useState, useRef } from 'react';
 import { Nut, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
+import axios from 'axios'
+import toast from 'react-hot-toast';
 function Otp() {
-  const [otp, setOtp] = useState(['', '', '', '']);
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const inputs = useRef([]);
+  const location = new URLSearchParams(window.location.search)
+  const phone = location.get('phone');
+  const type = location.get('type');
+  console.log(type)
+  const email = location.get('email');
 
   const handleChange = (element, index) => {
     if (isNaN(element.value)) return false;
 
     setOtp([...otp.map((d, idx) => (idx === index ? element.value : d))]);
 
-    // Focus next input
+
     if (element.value !== '') {
       if (index < 3) {
         inputs.current[index + 1].focus();
@@ -30,19 +36,36 @@ function Otp() {
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData('text').slice(0, 4);
+    const pastedData = e.clipboardData.getData('text').slice(0, 6); // Allow up to 6 characters only
     if (/^\d+$/.test(pastedData)) {
-      const otpArray = pastedData.split('').slice(0, 4);
-      setOtp([...otpArray, ...Array(4 - otpArray.length).fill('')]);
-      inputs.current[3].focus();
+      const otpArray = pastedData.split('').slice(0, 6); // Convert to array and limit to 6 digits
+      setOtp([...otpArray, ...Array(6 - otpArray.length).fill('')]); // Fill the remaining slots with empty strings
+      inputs.current[Math.min(otpArray.length, 5)].focus(); // Focus the next input field
     }
   };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (otp.join('').length !== 4) {
-      alert('Please enter all digits');
+    if (otp.join('').length !== 6) {
+      toast.error('Please enter all digits');
       return;
+    }
+    try {
+      const data = await axios.post('https://www.api.dyfru.com/api/v1/verify-otp', {
+        email,
+        otp,
+        type: type
+      })
+
+      toast.success(data.data.mesage)
+      sessionStorage.setItem('token_login', data.data?.token)
+
+      setTimeout(() => {
+        window.location.href = '/'
+      }, 2000)
+      console.log(data.data)
+    } catch (error) {
+      toast.error(error.response.data.message || 'We are faccing some error please try again')
+      console.log("i am error",error)
     }
 
     setIsSubmitting(true);
@@ -54,10 +77,19 @@ function Otp() {
     }, 2000);
   };
 
-  const handleResend = (e) => {
+  const handleResend = async (e) => {
     e.preventDefault();
-    // Simulate resend OTP
-    console.log('Resending OTP...');
+    try {
+      const data = await axios.post('https://www.api.dyfru.com/api/v1/resend-otp', {
+        email,
+        type: type
+      })
+      console.log(data.data)
+      toast.success(data.data.msg || 'OTP Verification Success')
+    } catch (error) {
+      console.log(error)
+      toast.error(error?.response?.data.msg)
+    }
   };
 
   return (
@@ -72,12 +104,12 @@ function Otp() {
             Verify Your Email
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            We've sent a code to your email
+            We've sent a code to your email {email}
           </p>
         </div>
 
         {/* Back Button */}
-        <Link 
+        <Link
           to={"/login"}
           onClick={() => window.history.back()}
           className="flex items-center text-sm text-green-600 hover:text-green-500"
@@ -108,9 +140,8 @@ function Otp() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg ${
-                isSubmitting ? 'bg-green-400' : 'bg-green-600 hover:bg-green-700'
-              } text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200`}
+              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg ${isSubmitting ? 'bg-green-400' : 'bg-green-600 hover:bg-green-700'
+                } text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200`}
             >
               {isSubmitting ? 'Verifying...' : 'Verify'}
             </button>

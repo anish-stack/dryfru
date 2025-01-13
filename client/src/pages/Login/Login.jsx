@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Lock, Mail, Nut } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
+import axios from 'axios'
+import toast from 'react-hot-toast';
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
       alert('Please fill in all fields');
@@ -16,12 +17,30 @@ function Login() {
     }
 
     setIsSubmitting(true);
-
-    // Simulate an API call
-    setTimeout(() => {
-      console.log('Login attempted with:', { email, password, rememberMe });
+    try {
+      const response = await axios.post('https://www.api.dyfru.com/api/v1/login', {
+        Email: email,
+        Password: password,
+      })
+      console.log(response.data)
       setIsSubmitting(false);
-    }, 2000);
+      toast.success('Successfully logged in')
+      sessionStorage.setItem('token_login', response.data.token);
+      window.location.href = '/'
+    } catch (error) {
+      console.log(error)
+      const data = error?.response?.data?.data
+      if (error.status === 403) {
+        window.location.href = `/Verify-Otp?type=register&email=${data}`
+        setIsSubmitting(false);
+      } else {
+        setIsSubmitting(false);
+        toast.error(error?.response?.data?.message)
+      }
+
+    }
+
+
   };
 
   return (
@@ -33,7 +52,7 @@ function Login() {
             <Nut className="h-8 w-8 text-green-600" />
           </div>
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            Welcome To Login
+            Welcome Back
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Sign in to your Nutri Delights account
@@ -48,10 +67,10 @@ function Login() {
                 Email address
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 z-10 pl-3 flex items-center pointer-events-none"  style={{
+                <div className="absolute inset-y-0 left-0 z-10 pl-3 flex items-center pointer-events-none" style={{
                   zIndex: '9999',
                 }}>
-                <Mail className="h-5 w-5 text-green-400" />
+                  <Mail className="h-5 w-5 text-green-400" />
                 </div>
                 <input
                   id="email"
@@ -124,9 +143,8 @@ function Login() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg ${
-                isSubmitting ? 'bg-green-400' : 'bg-green-600 hover:bg-green-700'
-              } text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200`}
+              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg ${isSubmitting ? 'bg-green-400' : 'bg-green-600 hover:bg-green-700'
+                } text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200`}
             >
               {isSubmitting ? 'Signing in...' : 'Sign in'}
             </button>

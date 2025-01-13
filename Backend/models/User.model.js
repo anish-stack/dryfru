@@ -47,6 +47,11 @@ const UserSchema = mongoose.Schema(
         },
         OtpGeneratedAt: {
             type: Date,
+        },
+        tempPassword:{
+            type: String,
+            default: null,
+          
         }
     },
 
@@ -76,12 +81,23 @@ UserSchema.pre("save", async function (next) {
 // Add the method to compare passwords
 UserSchema.methods.comparePassword = async function (enteredPassword) {
     try {
-        return await bcrypt.compare(enteredPassword, this.Password);
-    } catch (error) {
-        throw new Error('Password comparison failed', error);
-    }
-}
+        if (!enteredPassword || !this.Password) {
+            throw new Error("Entered password or stored password is missing");
+        }
 
+        const isMatch = await bcrypt.compare(enteredPassword, this.Password);
+
+        if (!isMatch) {
+            throw new Error("Incorrect password");
+        }
+
+        return isMatch;
+    } catch (error) {
+        throw new Error("Password comparison failed: " + error.message);
+    }
+
+
+}
 const User = mongoose.model("User", UserSchema);
 
 module.exports = User;

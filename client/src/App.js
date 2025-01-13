@@ -7,14 +7,35 @@ import ProductPage from './pages/ProductPage/ProductPage';
 import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
 import ForgetPassword from './pages/ForgetPassword/ForgetPassword';
+import Shop from './pages/shop/Shop';
+import Otp from './pages/Otp/Otp';
+import Cart from './pages/Cart/Cart';
+import CheckOut from './pages/Cart/CheckOut';
+import ReceiptComponent from './pages/Cart/Receipt';
+import Dashboard from './User_Dashboard/Dashboard';
+import { useEffect } from 'react';
 
 function App(){
+
+  useEffect(() => {
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    })
+  }, [window.location.pathname]);
   return (
     <Routes>
       <Route path='/' element={<Home />} />
       <Route path='/about' element={<About/>} />
       <Route path='/productpage/:_id' element={<ProductPage/>} />
       <Route path='/contact' element={<Contact/>} />
+      <Route path='/shop' element={<Shop/>} />
+      <Route path='/Verify-Otp' element={<Otp/>} />
+      <Route path='/Cart' element={<Cart/>} />
+      <Route path='/procced-to-checkout' element={<CheckOut/>} />
+      <Route path='/Receipt/order-confirmed' element={<ReceiptComponent/>} />
+      <Route path='/profile/dashboard' element={<Dashboard/>} />
       <Route path='/login' element={<Login/>}/>
       <Route path='/register' element={<Register/>} />
       <Route path='/forgetpassword' element={<ForgetPassword/>}/>

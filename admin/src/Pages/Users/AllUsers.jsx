@@ -18,7 +18,7 @@ const AllUsers = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:7400/api/v1/admin/get-users', {
+      const response = await axios.get('https://www.api.dyfru.com/api/v1/admin/get-users', {
         params: {
           page: pagination.currentPage,
           search: filters.searchTerm,

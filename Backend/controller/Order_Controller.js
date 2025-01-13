@@ -1,6 +1,9 @@
 const Ordermodel = require('../models/Order.model')
 const Product = require('../models/Product.model')
-const Crypto = require('crypto')
+const Crypto = require('crypto');
+const PaymentService = require('../services/Payment.service');
+const { initiatePayment } = require('../utils/Pay');
+const axios = require('axios');
 async function toCheckStock(product_id, stock, isVarientTrue = false, Varient_id) {
     try {
         const product = await Product.findById(product_id);
@@ -50,17 +53,20 @@ async function generateUniqueOrderId() {
 
 exports.createOrderOfProduct = async (req, res) => {
     try {
+        console.log(req.body)
+        console.log(req.body.items)
+
         const user = req.user.id?._id || null
         const order_id = await generateUniqueOrderId();
 
         const { items, totalAmount, payAmt, isVarientInCart, paymentType, offerId, shipping } = req.body;
 
         for (let item of items) {
-            const { productId, quantity, varient_id } = item;
+            const { product_id, Qunatity, variantId } = item;
 
-            const isVarientTrue = isVarientInCart && varient_id ? true : false;
+            const isVarientTrue = isVarientInCart && variantId ? true : false;
 
-            const stockCheck = await toCheckStock(productId, quantity, isVarientTrue, varient_id);
+            const stockCheck = await toCheckStock(product_id, Qunatity, isVarientTrue, variantId);
 
             if (!stockCheck) {
                 return res.status(400).json({
@@ -70,15 +76,16 @@ exports.createOrderOfProduct = async (req, res) => {
             }
         }
         const orderItems = items.map(item => ({
-            productId: item.productId,
+            productId: item.product_id,
             varient_type: {
-                id: item.varient_id || null,
-                text: item.quantity || ''
+                id: item.variantId || null,
+                text: item.variant || ''
             },
-            name: item.name,
-            quantity: item.quantity,
-            price: item.price,
+            name: item.product_name,
+            quantity: item.Qunatity,
+            price: item.price_after_discount,
         }));
+
 
         const newOrder = new Ordermodel({
             userId: user,
@@ -96,12 +103,18 @@ exports.createOrderOfProduct = async (req, res) => {
 
         const savedOrder = await newOrder.save();
 
-        // Send confirmation response
-        return res.status(201).json({
-            success: true,
-            order: newOrder,
-            message: 'Order placed successfully! Your items are in the cart.'
-        });
+        if (paymentType === 'ONLINE') {
+
+            return await initiatePayment(req, res, newOrder)
+        } else {
+            return res.status(200).json({
+                success: true,
+                message: 'Order has been successfully created and placed in pending status.',
+                order: newOrder
+            });
+        }
+
+
 
     } catch (error) {
         console.error(error);
@@ -190,11 +203,44 @@ exports.ChangeOrderStatus = async (req, res) => {
         });
     }
 };
+exports.OrderProcessRating = async (req, res) => {
+    try {
+        const orderId = req.params.orderid;
+        const { OrderProcessRating } = req.body;
+        console.log(req.body)
 
+        const orderData = await Ordermodel.findOne({ orderId: orderId })
+        console.log(orderData)
+        if (!orderData) {
+            return res.status(404).json({
+                success: false,
+                message: 'Order not found. Please check the order ID and try again.',
+            });
+        }
+        orderData.OrderProcessRating = OrderProcessRating
+        await orderData.save();
+        console.log("save",orderData)
+        return res.status(200).json({
+            success: true,
+            message: 'Thank you for sharing your feedback! Your rating has been successfully added to your order.',
+            updatedOrder: orderData,
+        });
+
+    } catch (error) {
+        console.error('Error updating order process rating:', error);
+
+
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred while adding the rating. Please try again later.',
+            error: error.message,
+        });
+    }
+};
 
 exports.getAllOrder = async (req, res) => {
     try {
-        const { page = 1, search = '', startDate, endDate, orderStatus } = req.query;
+        const { page = 1, search = '', startDate, endDate, orderStatus, limit } = req.query;
         let query = {};
 
         if (search) {
@@ -205,8 +251,8 @@ exports.getAllOrder = async (req, res) => {
         }
 
         if (startDate && endDate) {
-            query.createdAt = { 
-                $gte: new Date(startDate), 
+            query.createdAt = {
+                $gte: new Date(startDate),
                 $lte: new Date(endDate)
             };
         }
@@ -215,15 +261,15 @@ exports.getAllOrder = async (req, res) => {
             query.status = orderStatus;
         }
 
-        const limit = 2;
+        const limits = limit;
         const orders = await Ordermodel.find(query)
             .populate('userId')
-            .skip((page - 1) * limit)
-            .limit(limit); 
+            .skip((page - 1) * limits)
+            .limit(limits);
 
         return res.status(200).json({
             success: true,
-            totalPages: Math.ceil(await Ordermodel.countDocuments(query) / limit),
+            totalPages: Math.ceil(await Ordermodel.countDocuments(query) / limits),
             total: orders.length,
             currentPage: page,
             data: orders,
@@ -236,3 +282,177 @@ exports.getAllOrder = async (req, res) => {
         });
     }
 }
+
+exports.getOrderByOrderId = async (req, res) => {
+    try {
+        const userId = req.user?.id?._id;
+        const orderId = req.params.orderId;
+        console.log(orderId)
+        console.log(userId)
+
+
+
+        const order = await Ordermodel.findOne({
+            userId: userId,
+            orderId: orderId
+        }).populate('userId');
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: 'We couldn’t find an order with the provided ID. Please double-check the order ID and try again.'
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Order retrieved successfully.',
+            data: order,
+        });
+    } catch (error) {
+
+        console.error('Error fetching order:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Something went wrong while retrieving the order. Please try again later.',
+            error: error.message,
+        });
+    }
+};
+
+
+
+exports.getMyLastOrder = async (req, res) => {
+    try {
+
+        const user = req.user?.id?._id || null;
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: "User is not logged in or ID is invalid."
+            });
+        }
+
+        // Find the latest order for the user
+        const order = await Ordermodel.findOne({ userId: user }).sort({ createdAt: -1 });
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "No orders found for this user."
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            order: order
+        });
+
+    } catch (error) {
+        console.error("Error fetching last order:", error);
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred while fetching the last order.",
+            error: error.message
+        });
+    }
+};
+
+exports.getMyAllOrder = async (req, res) => {
+    try {
+
+        const user = req.user?.id?._id || null;
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: "User is not logged in or ID is invalid."
+            });
+        }
+
+        // Find the latest order for the user
+        const order = await Ordermodel.find({ userId: user }).sort({ createdAt: -1 });
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "No orders found for this user."
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            order: order
+        });
+
+    } catch (error) {
+        console.error("Error fetching last order:", error);
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred while fetching the last order.",
+            error: error.message
+        });
+    }
+};
+
+exports.checkStatus = async (req, res) => {
+    const { merchantTransactionId } = req.params;
+
+    if (!merchantTransactionId) {
+        return res.status(400).json({ success: false, message: "Merchant transaction ID not provided" });
+    }
+
+    try {
+        const merchantId = process.env.PHONEPE_MERCHANT_ID || 'TESTPGPAYCREDUAT';
+        const apiKey = process.env.PHONEPE_MERCHANT_KEY || '14d6df8a-75bf-4873-9adf-43bc1545094f';
+        const keyIndex = 1;
+
+        const string = `/pg/v1/status/${merchantId}/${merchantTransactionId}${apiKey}`;
+        const sha256 = Crypto.createHash('sha256').update(string).digest('hex');
+        const checksum = sha256 + "###" + keyIndex;
+
+        const testUrlCheck = `https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/${merchantId}/${merchantTransactionId}`;
+
+        const options = {
+            method: 'GET',
+            url: testUrlCheck,
+            headers: {
+                accept: 'application/json',
+                'Content-Type': 'application/json',
+                'X-VERIFY': checksum,
+                'X-MERCHANT-ID': merchantId
+            }
+        };
+
+
+        const { data } = await axios.request(options);
+
+
+        if (data.success === true) {
+            console.log(merchantTransactionId)
+            const findOrder = await Ordermodel.findOne({ 'payment.phonepeOrderId': merchantTransactionId });
+
+            if (findOrder) {
+                findOrder.payment = {
+                    method: data.data?.paymentInstrument?.type,
+                    transactionId: data.data?.transactionId,
+                    isPaid: true,
+                    status: data.data?.state,
+                    paidAt: new Date()
+                }
+
+                await findOrder.save();
+            }
+            console.log(findOrder)
+            const successRedirect = `http://localhost:3001/Receipt/order-confirmed?id=${merchantTransactionId}&success=true&data=${findOrder?.orderId}`;
+
+            return res.redirect(successRedirect);
+        } else {
+            const failureRedirect = "https://panandacademy.com/payment-failed";
+            return res.redirect(failureRedirect);
+        }
+
+    } catch (error) {
+        console.error("Error in checkStatus:", error);
+        return res.status(500).json({ success: false, message: "Internal Server Error", error });
+    }
+};

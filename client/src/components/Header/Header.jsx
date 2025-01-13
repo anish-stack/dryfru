@@ -1,25 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  ShoppingCart, 
-  Search, 
-  Menu, 
-  Heart, 
-  X, 
+import {
+  ShoppingCart,
+  Search,
+  Menu,
+  Heart,
+  X,
   ChevronRight,
-  Leaf,
+
   LogIn,
   User
 } from 'lucide-react';
 import logo from './logo.png'
+import { useSelector, useDispatch } from 'react-redux';
+import { findMyDetails } from '../../utils/Api'
+import { fetchWishlist } from '../../store/slice/whishlist';
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const token = false;
+  const [token, setToken] = useState(false);
+  const { wishlist } = useSelector((state) => state.whishlist)
+  const { cart } = useSelector((state) => state.cart)
 
-
-
+  const dispatch = useDispatch()
+  console.log("wishlist", wishlist)
   const announcements = [
     'Flat 30% off on Christmas & New Year Products',
     'Additional 5% Off on Carts Above ₹250!'
@@ -29,19 +34,19 @@ const Header = () => {
     {
       id: 1,
       name: "PECAN NUTS",
-      path: "/",
+      path: "/productpage/6780fa0ae800bca193163975",
       icon: "🥜"
     },
     {
       id: 2,
       name: "CASHEW",
-      path: "/cashew",
+      path: "/productpage/6780fae573f5c96b00a45915",
       icon: "🌰"
     },
     {
       id: 3,
       name: "PISTACHIO",
-      path: "/pistachio",
+      path: "/productpage/6780fb0073f5c96b00a45916",
       icon: "🥜"
     },
     {
@@ -52,7 +57,30 @@ const Header = () => {
     }
   ];
 
-  // Handle scroll effect
+  useEffect(() => {
+    const tokens = sessionStorage.getItem('token_login') || {};
+    console.log("tokens", tokens)
+    if (tokens === null || tokens === undefined) {
+      setToken(false)
+    } else {
+      setToken(true)
+    }
+    const fetchData = async () => {
+
+      try {
+        const data = await findMyDetails();
+        console.log("data ds", data)
+      } catch (error) {
+        console.error("dayahsdh", error);
+        setToken(false)
+        sessionStorage.removeItem('token_login')
+
+      }
+    };
+    dispatch(fetchWishlist())
+    fetchData();
+  }, []);
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -60,10 +88,10 @@ const Header = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
+  console.log("token", token)
   return (
     <div className="w-full top-0 z-50">
-      {/* Announcement Bar */}
+
       <div className="bg-gradient-to-r from-green-600 to-green-800 overflow-hidden">
         <div className="animate-marquee whitespace-nowrap py-2">
           <div className="inline-flex">
@@ -76,20 +104,17 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Main Header */}
-      <header className={`bg-white border transition-all duration-300 px-0 md:px-10 ${
-        scrolled ? 'shadow-lg' : ''
-      }`}>
+      <header className={`bg-white  border transition-all duration-300 px-0 md:px-10 ${scrolled ? 'shadow-lg fixed top-0 z-[99] w-full' : ''
+        }`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16 lg:h-20">
-            {/* Logo */}
+
             <Link to="/" className="flex items-center space-x-2">
-            <img src={logo} className="h-12 object-fit" alt='' />
-              {/* <Leaf className="h-8 w-8 text-green-600" />
-              <span className="text-xl font-bold text-gray-900">NUTRI<span className="text-green-600">NUTS</span></span> */}
+              <img src={logo} className="h-12 object-fit" alt='' />
+
             </Link>
 
-            {/* Desktop Navigation */}
+
             <nav className="hidden lg:flex items-center space-x-8">
               {navLinks.map((link) => (
                 <Link
@@ -106,18 +131,18 @@ const Header = () => {
             {/* Right Section */}
             <div className="flex items-center space-x-4 lg:space-x-6">
               {/* Search Toggle */}
-              <button 
+              <button
                 onClick={() => setShowSearch(!showSearch)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className="p-2 md:block hidden hover:bg-gray-100 rounded-full transition-colors"
               >
                 <Search className="h-5 w-5 text-gray-700" />
               </button>
 
               {/* Wishlist */}
-              <Link to="/wishlist" className="relative p-2 hover:bg-gray-100 rounded-full transition-colors">
+              <Link to="/wishlist" className="relative  p-2 hover:bg-gray-100 rounded-full transition-colors">
                 <Heart className="h-5 w-5 text-gray-700" />
                 <span className="absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                  0
+                  {wishlist.length || 0}
                 </span>
               </Link>
 
@@ -125,26 +150,26 @@ const Header = () => {
               <Link to="/cart" className="relative p-2 hover:bg-gray-100 rounded-full transition-colors">
                 <ShoppingCart className="h-5 w-5 text-gray-700" />
                 <span className="absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                  0
+                  {cart.length || 0}
                 </span>
               </Link>
 
               {
                 token ? (
-                  <Link to="/dashboard" className="relative p-2 flex items-center gap-1 hover:bg-gray-100 rounded-full transition-colors">
+                  <Link to="/profile/dashboard" className="relative p-2 flex items-center gap-1 hover:bg-gray-100 rounded-full transition-colors">
                     <User className="h-5 w-5 text-gray-700" />
-                    <span>User</span>
+                    {/* <span>User</span> */}
                   </Link>
-                ):(                  
+                ) : (
                   <Link to="/login" className="relative p-2 flex items-center gap-1 hover:bg-gray-100 rounded-full transition-colors">
                     <LogIn className="h-5 w-5 text-gray-700" />
-                    <span>Login</span>
+                    {/* <span>Login</span> */}
                   </Link>
                 )
               }
 
               {/* Mobile Menu Button */}
-              <button 
+              <button
                 onClick={() => setIsOpen(true)}
                 className="lg:hidden p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
@@ -154,9 +179,8 @@ const Header = () => {
           </div>
 
           {/* Search Bar */}
-          <div className={`overflow-hidden transition-all duration-300 ${
-            showSearch ? 'h-16 opacity-100' : 'h-0 opacity-0'
-          }`}>
+          <div className={`overflow-hidden transition-all duration-300 ${showSearch ? 'h-16 opacity-100' : 'h-0 opacity-0'
+            }`}>
             <div className="container mx-auto px-4 py-3">
               <div className="relative">
                 <input
@@ -172,16 +196,14 @@ const Header = () => {
       </header>
 
       {/* Mobile Menu */}
-      <div className={`fixed inset-0 z-50 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${
-        isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-      }`}>
-        <div className={`absolute right-0 top-0 h-full w-[300px] bg-white shadow-2xl transition-transform duration-300 ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
+      <div className={`fixed inset-0 z-50 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}>
+        <div className={`absolute right-0 top-0 h-full w-[300px] bg-white shadow-2xl transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}>
           <div className="p-4 border-b">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">Menu</h2>
-              <button 
+              <button
                 onClick={() => setIsOpen(false)}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >

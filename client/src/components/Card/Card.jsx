@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Heart, IndianRupee, ChevronDown, ShoppingCart } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { addToWishlist, fetchWishlist } from '../../store/slice/whishlist';
 const Card = ({ product_name, tag, discount, ProductMainImage, price, isVarient, Varient, weight, _id }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const { wishlist } = useSelector((state) => state.whishlist)
+
+    const dispatch = useDispatch()
     const [selectedWeight, setSelectedWeight] = useState(weight);
     const [isHovered, setIsHovered] = useState(false);
     const [mprice, setPrice] = useState({
@@ -11,11 +15,23 @@ const Card = ({ product_name, tag, discount, ProductMainImage, price, isVarient,
         discount_price: 0
     })
 
-    useEffect(()=>{
-        if(isVarient){
+    const [isInWishlist, setIsInWishlist] = useState(false);
+
+    const add = (id) => {
+        dispatch(addToWishlist({ item: id }))
+        dispatch(fetchWishlist())
+    }
+    useEffect(() => {
+
+        const productInWishlist = wishlist.some((item) => item?.product?._id === _id);
+        setIsInWishlist(productInWishlist);
+    }, []);
+
+    useEffect(() => {
+        if (isVarient) {
             setSelectedWeight(Varient[0]?.quantity)
         }
-    },[])
+    }, [])
 
     useEffect(() => {
         if (isVarient) {
@@ -29,12 +45,11 @@ const Card = ({ product_name, tag, discount, ProductMainImage, price, isVarient,
         }
     }, [selectedWeight])
 
-    const weights = ['100g', '200g', '500g', '1kg'];
 
     const discountedPrice = price - (price * discount) / 100;
 
     return (
-        <Link to={`/productpage/${_id}`}
+        <div
             className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => {
@@ -42,7 +57,7 @@ const Card = ({ product_name, tag, discount, ProductMainImage, price, isVarient,
                 setIsDropdownOpen(false);
             }}
         >
-            {/* Discount Tag */}
+
             {discount > 0 && (
                 <div className="absolute top-4 left-4 z-10">
                     <div className="bg-green-600 text-white text-sm font-semibold px-2 py-1 rounded-full">
@@ -52,12 +67,14 @@ const Card = ({ product_name, tag, discount, ProductMainImage, price, isVarient,
             )}
 
             {/* Wishlist Button */}
-            <button className="absolute top-4 right-4 z-10 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-colors">
-                <Heart className="w-4 h-4 text-gray-600 hover:text-red-500 transition-colors" />
+            <button type='button' onClick={() => add(_id)} className={`absolute top-4 right-4 z-10 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-colors`}>
+                <Heart
+                    className={`w-4 h-4 text-gray-600 hover:text-red-500 transition-colors ${isInWishlist ? 'fill-red-400' : ''}`}
+                />
             </button>
 
             {/* Image */}
-            <div className="relative overflow-hidden rounded-t-2xl aspect-square">
+            <div onClick={() => window.location.href = `/productpage/${_id}`} className="relative cursor-pointer overflow-hidden rounded-t-2xl aspect-square">
                 <img
                     src={ProductMainImage?.url}
                     alt={product_name}
@@ -66,7 +83,7 @@ const Card = ({ product_name, tag, discount, ProductMainImage, price, isVarient,
             </div>
 
             {/* Content */}
-            <div className="p-4 space-y-3">
+            <div onClick={() => window.location.href = `/productpage/${_id}`} className="p-4 cursor-pointer space-y-3">
                 {/* Title */}
                 <h3 className="font-semibold text-gray-900 line-clamp-1">
                     {product_name}
@@ -128,7 +145,7 @@ const Card = ({ product_name, tag, discount, ProductMainImage, price, isVarient,
                     <span className="font-medium">Add to Cart</span>
                 </button>
             </div>
-        </Link>
+        </div>
     );
 };
 

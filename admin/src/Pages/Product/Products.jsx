@@ -11,7 +11,7 @@ const Products = () => {
 
   // Fetch products from the API
   useEffect(() => {
-    axios.get('http://localhost:7400/api/v1/get-product')
+    axios.get('https://www.api.dyfru.com/api/v1/get-product')
       .then(response => {
         if (response.data.success) {
           setProducts(response.data.products);
@@ -47,7 +47,7 @@ const Products = () => {
 
   const handleDeleteProduct = async(id) => {
     try {
-        const res = await axios.delete(`http://localhost:7400/api/v1/delete-product/${id}`)
+        const res = await axios.delete(`https://www.api.dyfru.com/api/v1/delete-product/${id}`)
         if(res.data.success) {
             setProducts(products.filter(product => product._id!== id))
             toast.success("Product deleted successfully")

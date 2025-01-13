@@ -5,34 +5,40 @@ import p2 from './peanut2.jpg'
 import { useParams } from "react-router-dom";
 import axios from 'axios';
 import ProductCard from '../../components/ProductCard/ProductCard';
+import { useDispatch, useSelector } from 'react-redux';
+import { addProduct } from '../../store/slice/cart.slice';
+import toast from 'react-hot-toast';
 
 
 function ProductPage() {
   const { _id } = useParams();
- 
+  const dispatch = useDispatch();
+  const { cart } = useSelector((state) => state.cart);
+
+
   const [selectedVariant, setSelectedVariant] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [product,setProduct] = useState({})
-  
-  const handleFetchProduct = async() => {
+  const [product, setProduct] = useState({})
+
+  const handleFetchProduct = async () => {
     try {
-      const {data} = await axios.get(`http://localhost:7400/api/v1/get-product/${_id}`)
+      const { data } = await axios.get(`https://www.api.dyfru.com/api/v1/get-product/${_id}`)
       setProduct(data.data)
     } catch (error) {
-      console.log("Internal server error",error)
+      console.log("Internal server error", error)
     }
   }
- 
-  
-  useEffect(()=>{
+
+
+  useEffect(() => {
     handleFetchProduct()
     window.scrollTo({
-      top:0,
-      behavior:'smooth'
+      top: 0,
+      behavior: 'smooth'
     })
-  },[_id])
+  }, [_id])
 
-  
+
 
   const handleQuantityChange = (increment) => {
     const newQuantity = quantity + increment;
@@ -41,13 +47,29 @@ function ProductPage() {
     }
   };
 
-  const handleAddToCart = () => {
-    
-    console.log('Added to cart:', {
-      product: product.product_name,
-      quantity,
+  const handleAddToCart = (product) => {
+
+    const selected = {
+      product_id: product._id,
+      product_name: product.product_name,
+      price: product.isVarient ? product.Varient[selectedVariant].price : product.price,
+      discount_percentage: product.isVarient ? product.Varient[selectedVariant].discount_percentage : 0,
+      price_after_discount: product.isVarient ? product.Varient[selectedVariant].price_after_discount : product.price,
+      isVarient: product.isVarient,
+      Qunatity:quantity,
+      variantId: product.isVarient ? product.Varient[0]._id : null,
+
       variant: product.isVarient ? product.Varient[selectedVariant].quantity : null,
-    });
+      image: product?.ProductMainImage?.url,
+    }
+    console.log(selected)
+    dispatch(addProduct(selected));
+    toast.success('Hooray! Your product has been added to the cart successfully.')
+    // console.log('Added to cart:', {
+    //   product: product.product_name,
+    //   quantity,
+    //   variant: product.isVarient ? product.Varient[selectedVariant].quantity : null,
+    // });
   };
 
   return (
@@ -88,14 +110,14 @@ function ProductPage() {
               <div className="space-y-2">
                 <div className="flex items-center space-x-4">
                   <span className="text-3xl font-bold text-gray-900">
-                  ₹{product.isVarient 
-                      ? product.Varient[selectedVariant].price_after_discount 
+                    ₹{product.isVarient
+                      ? product.Varient[selectedVariant].price_after_discount
                       : product.afterDiscountPrice}
                   </span>
                   {(product.isVarient ? product.Varient[selectedVariant].discount_percentage : product.discount) > 0 && (
                     <>
                       <span className="text-xl text-gray-400 line-through">
-                      ₹{product.isVarient ? product.Varient[selectedVariant].price : product.price}
+                        ₹{product.isVarient ? product.Varient[selectedVariant].price : product.price}
                       </span>
                       <span className="text-sm font-semibold text-green-500">
                         {product.isVarient ? product.Varient[selectedVariant].discount_percentage : product.discount}% OFF
@@ -114,11 +136,10 @@ function ProductPage() {
                       <button
                         key={index}
                         onClick={() => setSelectedVariant(index)}
-                        className={`px-4 py-2 rounded-lg border ${
-                          selectedVariant === index
-                            ? 'border-green-600 bg-green-50 text-green-600'
-                            : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                        }`}
+                        className={`px-4 py-2 rounded-lg border ${selectedVariant === index
+                          ? 'border-green-600 bg-green-50 text-green-600'
+                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                          }`}
                       >
                         {variant.quantity}
                       </button>
@@ -149,26 +170,26 @@ function ProductPage() {
 
               {/* Add to Cart Button */}
               <button
-                onClick={handleAddToCart}
+                onClick={() => handleAddToCart(product)}
                 className="w-full bg-green-600 text-white py-3 px-8 rounded-lg flex items-center justify-center space-x-2 hover:bg-green-700 transition-colors"
               >
                 <FiShoppingCart className="w-5 h-5" />
                 <span>Add to Cart</span>
               </button>
 
-            
+
             </div>
           </div>
-            {/* Additional Information */}
-            <div className="border-t border-gray-200 pt-6 space-y-4">
-                
-                {product.extra_description && (
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900">Additional Information</h3>
-                    <p className="mt-1 text-sm text-gray-500">{product.extra_description}</p>
-                  </div>
-                )}
-                {/* <div>
+          {/* Additional Information */}
+          <div className="border-t border-gray-200 pt-6 space-y-4">
+
+            {product.extra_description && (
+              <div>
+                <h3 className="text-sm font-medium text-gray-900">Additional Information</h3>
+                <p className="mt-1 text-sm text-gray-500">{product.extra_description}</p>
+              </div>
+            )}
+            {/* <div>
                   <h3 className="text-sm font-medium text-gray-900">Stock Status</h3>
                   <p className="mt-1 text-sm text-gray-500">
                     {product.isVarient
@@ -176,7 +197,7 @@ function ProductPage() {
                       : `${product.stock} units available`}
                   </p>
                 </div> */}
-              </div>
+          </div>
         </div>
         <ProductCard bg={false} title={'Related Products'} />
       </div>
