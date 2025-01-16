@@ -75,7 +75,7 @@ const EditProduct = () => {
   };
   const fetchCategoryData = async () => {
     try {
-      const res = await axios.get('http://localhost:7400/api/v1/admin/category')
+      const res = await axios.get('https://api.dyfru.com/api/v1/admin/category')
       const data = res.data.categories
 
       console.log("categirr", res.data)
@@ -162,7 +162,7 @@ const EditProduct = () => {
 
   const handleFetchProductDetails = async () => {
     try {
-      const { data } = await axios.get(`http://localhost:7400/api/v1/get-product/${id}`)
+      const { data } = await axios.get(`https://api.dyfru.com/api/v1/get-product/${id}`)
 
       const productData = data?.data
       setFormData((prevData) => ({
@@ -227,7 +227,7 @@ const EditProduct = () => {
 
       // Send the form data via Axios
       const { data } = await axios.post(
-        `http://localhost:7400/api/v1/update-product/${id}`,
+        `https://api.dyfru.com/api/v1/update-product/${id}`,
         formDataObject,
         {
           headers: {

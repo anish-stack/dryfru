@@ -24,7 +24,7 @@ const ViewOrder = () => {
     const fetchOrder = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:7400/api/v1/recent-order/${id}`);
+        const response = await axios.get(`https://api.dyfru.com/api/v1/recent-order/${id}`);
         setOrderData(response.data.data);
       } catch (err) {
         setError('Failed to fetch order details');

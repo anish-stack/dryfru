@@ -39,7 +39,7 @@ const Footer = () => {
       const dataSetting = await findSettings()
       setSettings(dataSetting)
       try {
-        const { data } = await axios.get('http://localhost:7400/api/v1/admin/pages')
+        const { data } = await axios.get('https://api.dyfru.com/api/v1/admin/pages')
         if (data) {
           setPages(data.pages)
         }

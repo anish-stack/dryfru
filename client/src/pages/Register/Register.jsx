@@ -97,7 +97,7 @@ function Register() {
 
         setIsSubmitting(true);
         try {
-            const response = await axios.post('http://localhost:7400/api/v1/regsiter-user', formData);
+            const response = await axios.post('https://api.dyfru.com/api/v1/regsiter-user', formData);
             console.log(response.data.data)
             const user = response.data.data
             setSuccess(response.data.message);

@@ -56,7 +56,7 @@ function Settings() {
 
     const fetchSettings = async () => {
         try {
-            const response = await fetch('http://localhost:7400/api/v1/admin/settings');
+            const response = await fetch('https://api.dyfru.com/api/v1/admin/settings');
             const data = await response.json();
             console.log(data)
             setSettings(data.data);
@@ -99,7 +99,7 @@ function Settings() {
         setLoading(true);
 
         try {
-            const response = await axios.put('http://localhost:7400/api/v1/admin/settings/678258cf87e91e662ce73708', settings);
+            const response = await axios.put('https://api.dyfru.com/api/v1/admin/settings/678258cf87e91e662ce73708', settings);
 
             console.log(response.data);
             alert('Settings updated successfully!');
