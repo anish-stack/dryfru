@@ -12,13 +12,13 @@ export const fetchWishlist = createAsyncThunk(
     'wishlist/fetchWishlist',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await axios.get('https://www.api.dyfru.com/api/v1/wishlist', {
+            const response = await axios.get('http://localhost:7400/api/v1/wishlist', {
                 headers: {
                     Authorization: `Bearer ${sessionStorage.getItem('token_login')}`,
                 },
             });
             console.log("response",response.data.data.items)
-            // console.log("response.data.data",response.data.data);
+          
             return response.data.data.items;
         } catch (error) {
             console.error('Error fetching wishlist:', error);
@@ -31,7 +31,7 @@ export const addToWishlist = createAsyncThunk(
     'wishlist/addToWishlist',
     async (item, { rejectWithValue }) => {
         try {
-            const response = await axios.post('https://www.api.dyfru.com/api/v1/add-whishlist', item, {
+            const response = await axios.post('http://localhost:7400/api/v1/add-whishlist', item, {
                 headers: {
                     Authorization: `Bearer ${sessionStorage.getItem('token_login')}`,
                 },

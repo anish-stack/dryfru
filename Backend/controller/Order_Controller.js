@@ -4,6 +4,10 @@ const Crypto = require('crypto');
 const PaymentService = require('../services/Payment.service');
 const { initiatePayment } = require('../utils/Pay');
 const axios = require('axios');
+const EmailQueue = require('../queues/email');
+const sendEmail = require('../utils/sendMail');
+const settings = require('../models/Setting');
+
 async function toCheckStock(product_id, stock, isVarientTrue = false, Varient_id) {
     try {
         const product = await Product.findById(product_id);
@@ -53,8 +57,7 @@ async function generateUniqueOrderId() {
 
 exports.createOrderOfProduct = async (req, res) => {
     try {
-        console.log(req.body)
-        console.log(req.body.items)
+
 
         const user = req.user.id?._id || null
         const order_id = await generateUniqueOrderId();
@@ -107,10 +110,149 @@ exports.createOrderOfProduct = async (req, res) => {
 
             return await initiatePayment(req, res, newOrder)
         } else {
+            const SettingsFind = await settings.findOne()
+
+
+            const findOrderDetails = await Ordermodel.findById(savedOrder?._id).populate('userId')
+            console.log(findOrderDetails?.userId?.Email)
+            const MailOptions = {
+                email: findOrderDetails?.userId?.Email,
+                subject: 'Order Placed Successfuly',
+                message: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmation</title>
+</head>
+<body style="font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background-color: #f0faf0; color: #1a1a1a;">
+  <div style="max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+   
+    <div style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: #ffffff; padding: 32px 20px; text-align: center;">
+      <h2 style="margin: 0; font-size: 28px; font-weight: 600;">Order Confirmed! 🎉</h2>
+      <p style="margin: 8px 0 0; opacity: 0.9;">Thank you for your purchase</p>
+    </div>
+
+    <div style="padding: 32px 24px;">
+      <div style="background: #f0fdf4; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+        <p style="margin: 0; font-size: 16px; line-height: 1.6;">
+          Dear ${findOrderDetails?.userId?.Name},<br>
+          Your order has been successfully placed and confirmed. We're preparing your items for shipment!
+        </p>
+      </div>
+
+    
+      <div style="margin-bottom: 32px;">
+        <h3 style="color: #16a34a; font-size: 20px; margin: 0 0 16px; padding-bottom: 8px; border-bottom: 2px solid #dcfce7;">
+          Order Details
+        </h3>
+        <table style="width: 100%; border-collapse: separate; border-spacing: 0 4px;">
+          <tr>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 6px 0 0 6px;">Order ID:</td>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 0 6px 6px 0; font-weight: 500;">${findOrderDetails?.orderId}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 6px 0 0 6px;">Email:</td>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 0 6px 6px 0; font-weight: 500;">${findOrderDetails?.userId?.Email}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 6px 0 0 6px;">Order Date:</td>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 0 6px 6px 0; font-weight: 500;">${new Date(findOrderDetails?.orderDate).toLocaleDateString()}</td>
+          </tr>
+        </table>
+      </div>
+
+
+      <div style="margin-bottom: 32px;">
+        <h3 style="color: #16a34a; font-size: 20px; margin: 0 0 16px; padding-bottom: 8px; border-bottom: 2px solid #dcfce7;">
+          Items Ordered
+        </h3>
+        <table style="width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 16px;">
+          <thead>
+            <tr style="background: #dcfce7;">
+              <th style="padding: 12px; text-align: left; border-radius: 6px 0 0 6px;">Product</th>
+              <th style="padding: 12px; text-align: center;">Qty</th>
+              <th style="padding: 12px; text-align: right; border-radius: 0 6px 6px 0;">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${findOrderDetails?.items.map(item => `
+              <tr style="background: #f0fdf4;">
+                <td style="padding: 12px; border-radius: 6px 0 0 6px;">${item.name}</td>
+                <td style="padding: 12px; text-align: center;">${item.quantity}</td>
+                <td style="padding: 12px; text-align: right; border-radius: 0 6px 6px 0;">₹${item.price}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+
+      <div style="margin-bottom: 32px;">
+        <h3 style="color: #16a34a; font-size: 20px; margin: 0 0 16px; padding-bottom: 8px; border-bottom: 2px solid #dcfce7;">
+          Payment Information
+        </h3>
+        <table style="width: 100%; border-collapse: separate; border-spacing: 0 4px;">
+          <tr>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 6px 0 0 6px;">Total Amount:</td>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 0 6px 6px 0; font-weight: 600;">₹${findOrderDetails?.totalAmount}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 6px 0 0 6px;">Payment Amount:</td>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 0 6px 6px 0; font-weight: 600;">₹${findOrderDetails?.payAmt}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 6px 0 0 6px;">Payment Method:</td>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 0 6px 6px 0;">${findOrderDetails?.paymentType}</td>
+          </tr>
+         
+          <tr>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 6px 0 0 6px;">Payment Status:</td>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 0 6px 6px 0;">
+              <span style="background: #16a34a; color: white; padding: 4px 12px; border-radius: 12px; font-size: 14px;">${findOrderDetails?.payment?.status}</span>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+
+      <div style="margin-bottom: 32px;">
+        <h3 style="color: #16a34a; font-size: 20px; margin: 0 0 16px; padding-bottom: 8px; border-bottom: 2px solid #dcfce7;">
+          Delivery Address
+        </h3>
+        <div style="background: #f0fdf4; padding: 16px; border-radius: 12px;">
+          <p style="margin: 0; line-height: 1.6;">
+            ${findOrderDetails?.shipping?.addressLine}<br>
+            ${findOrderDetails?.shipping?.city}, ${findOrderDetails?.shipping?.state}, ${findOrderDetails?.shipping?.postCode}<br>
+            <strong>Mobile:</strong> ${findOrderDetails?.shipping?.mobileNumber}
+          </p>
+        </div>
+      </div>
+
+
+      <div style="background: #dcfce7; border-radius: 12px; padding: 20px; text-align: center; margin-top: 32px;">
+        <p style="margin: 0; font-size: 15px; line-height: 1.6;">
+          Need help? Contact our support team at<br>
+          <a href="mailto:support@company.com" style="color: #16a34a; text-decoration: none; font-weight: 500;">${SettingsFind?.supportEmail}</a>
+        </p>
+      </div>
+    </div>
+
+  
+    <div style="background: #16a34a; padding: 20px; text-align: center; color: #ffffff;">
+      <p style="margin: 0; font-size: 14px;">
+        &copy; ${new Date().getFullYear()} ${SettingsFind?.siteName}. All rights reserved.
+      </p>
+    </div>
+  </div>
+</body>
+</html>`,
+            }
+            await sendEmail(MailOptions)
             return res.status(200).json({
                 success: true,
                 message: 'Order has been successfully created and placed in pending status.',
-                order: newOrder
+                order: findOrderDetails
             });
         }
 
@@ -137,7 +279,7 @@ exports.ChangeOrderStatus = async (req, res) => {
             });
         }
 
-        if (Order.status === 'confirmed' || Order.status === 'delivered') {
+        if (Order.status === 'delivered') {
             return res.status(400).json({
                 success: false,
                 message: `The order has already been marked as ${Order.status}. It cannot be updated at this time.`
@@ -203,14 +345,15 @@ exports.ChangeOrderStatus = async (req, res) => {
         });
     }
 };
+
 exports.OrderProcessRating = async (req, res) => {
     try {
         const orderId = req.params.orderid;
         const { OrderProcessRating } = req.body;
-        console.log(req.body)
+
 
         const orderData = await Ordermodel.findOne({ orderId: orderId })
-        console.log(orderData)
+
         if (!orderData) {
             return res.status(404).json({
                 success: false,
@@ -219,7 +362,7 @@ exports.OrderProcessRating = async (req, res) => {
         }
         orderData.OrderProcessRating = OrderProcessRating
         await orderData.save();
-        console.log("save",orderData)
+
         return res.status(200).json({
             success: true,
             message: 'Thank you for sharing your feedback! Your rating has been successfully added to your order.',
@@ -265,7 +408,8 @@ exports.getAllOrder = async (req, res) => {
         const orders = await Ordermodel.find(query)
             .populate('userId')
             .skip((page - 1) * limits)
-            .limit(limits);
+            .limit(limits)
+            .sort({ createdAt: -1 })
 
         return res.status(200).json({
             success: true,
@@ -287,8 +431,7 @@ exports.getOrderByOrderId = async (req, res) => {
     try {
         const userId = req.user?.id?._id;
         const orderId = req.params.orderId;
-        console.log(orderId)
-        console.log(userId)
+
 
 
 
@@ -317,6 +460,178 @@ exports.getOrderByOrderId = async (req, res) => {
             message: 'Something went wrong while retrieving the order. Please try again later.',
             error: error.message,
         });
+    }
+};
+
+exports.getOrderByOrderIdAdmin = async (req, res) => {
+    try {
+
+        const orderId = req.params.orderId;
+
+
+
+
+        const order = await Ordermodel.findOne({
+            orderId: orderId
+        }).populate('userId');
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: 'We couldn’t find an order with the provided ID. Please double-check the order ID and try again.'
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Order retrieved successfully.',
+            data: order,
+        });
+    } catch (error) {
+
+        console.error('Error fetching order:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Something went wrong while retrieving the order. Please try again later.',
+            error: error.message,
+        });
+    }
+};
+
+exports.getRecentsOrders = async (req, res) => {
+    try {
+        const recentOrders = await Ordermodel.find({
+            orderDate: { $gte: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) }
+        }).populate('userId').sort({ orderDate: -1 });
+
+        res.status(200).json({ message: 'Recent Orders fetched successfully', data: recentOrders });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error fetching recent orders', error });
+    }
+};
+
+
+exports.generateOrderReport = async (req, res) => {
+    const { reportType, startDate, endDate } = req.body;
+
+    let start, end;
+
+    // Determine the date range based on report type
+    switch (reportType) {
+        case 'weekly':
+            start = new Date();
+            start.setDate(start.getDate() - 7); // 7 days ago
+            end = new Date(); // Current date
+            break;
+        case 'monthly':
+            start = new Date();
+            start.setMonth(start.getMonth() - 1); // 1 month ago
+            end = new Date(); // Current date
+            break;
+        case 'custom':
+            if (!startDate || !endDate) {
+                return res.status(400).json({ message: 'Please provide both startDate and endDate' });
+            }
+            start = new Date(startDate);
+            end = new Date(endDate);
+            break;
+        default:
+            return res.status(400).json({ message: 'Invalid report type' });
+    }
+
+    try {
+        // Fetch the orders within the date range
+        const orders = await Ordermodel.find({
+            orderDate: { $gte: start, $lte: end }
+        }).sort({ orderDate: -1 });
+
+        // Fetch all products to track which ones sold the most and least
+        const products = await Product.find();
+
+        // Track the total amount and quantity for each order
+        let totalAmount = 0;
+        let totalQuantity = 0;
+
+        // Initialize a map to track product sales
+        const productSales = new Map();
+
+        // Loop through the orders to calculate total sales and track product sales
+        orders.forEach((order) => {
+            totalAmount += order.totalAmount;
+            totalQuantity += order.totalquantity;
+
+            // Loop through items in the order to track product sales
+            order.items.forEach((item) => {
+                const productId = item.productId.toString();
+                const soldQuantity = item.quantity;
+
+                // Update the sales map for the product
+                if (productSales.has(productId)) {
+                    productSales.set(productId, productSales.get(productId) + soldQuantity);
+                } else {
+                    productSales.set(productId, soldQuantity);
+                }
+            });
+        });
+
+        // Get the product with the most sales and the least sales
+        let mostSoldProduct = { productId: null, quantity: 0 };
+        let leastSoldProduct = { productId: null, quantity: Infinity };
+
+        // Track products that were not sold
+        const soldProductIds = new Set(productSales.keys());
+        const unsoldProducts = [];
+
+        // Check each product and update the most and least sold products
+        products.forEach((product) => {
+            const productId = product._id.toString();
+            const soldQuantity = productSales.get(productId) || 0;
+
+            // Most sold product
+            if (soldQuantity > mostSoldProduct.quantity) {
+                mostSoldProduct = { productId, quantity: soldQuantity };
+            }
+
+            // Least sold product
+            if (soldQuantity < leastSoldProduct.quantity && soldQuantity > 0) {
+                leastSoldProduct = { productId, quantity: soldQuantity };
+            }
+
+            // Track unsold products
+            if (soldQuantity === 0) {
+                unsoldProducts.push(product);
+            }
+        });
+
+        // Get the most and least sold product details
+        const mostSoldProductDetails = products.find(product => product._id.toString() === mostSoldProduct.productId);
+        const leastSoldProductDetails = products.find(product => product._id.toString() === leastSoldProduct.productId);
+
+        // Generate the report data
+        const reportData = {
+            orders: orders[0],
+            totalAmount,
+            totalQuantity,
+            mostSoldProduct: {
+                productName: mostSoldProductDetails?.product_name || 'N/A',
+                quantitySold: mostSoldProduct.quantity
+            },
+            leastSoldProduct: {
+                productName: leastSoldProductDetails?.product_name || 'N/A',
+                quantitySold: leastSoldProduct.quantity
+            },
+            unsoldProducts: unsoldProducts.map(product => product.product_name)
+        };
+
+        // Return the report data
+        res.status(200).json({
+            message: `${reportType.charAt(0).toUpperCase() + reportType.slice(1)} report generated successfully`,
+            data: reportData
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error generating report', error });
     }
 };
 
@@ -428,8 +743,8 @@ exports.checkStatus = async (req, res) => {
 
 
         if (data.success === true) {
-            console.log(merchantTransactionId)
-            const findOrder = await Ordermodel.findOne({ 'payment.phonepeOrderId': merchantTransactionId });
+
+            const findOrder = await Ordermodel.findOne({ 'payment.phonepeOrderId': merchantTransactionId }).populate('userId');
 
             if (findOrder) {
                 findOrder.payment = {
@@ -442,9 +757,146 @@ exports.checkStatus = async (req, res) => {
 
                 await findOrder.save();
             }
-            console.log(findOrder)
-            const successRedirect = `https://dyfru.com/Receipt/order-confirmed?id=${merchantTransactionId}&success=true&data=${findOrder?.orderId}`;
 
+            const successRedirect = `http://localhost:3001/Receipt/order-confirmed?id=${merchantTransactionId}&success=true&data=${findOrder?.orderId}`;
+            // Send email notification to customer and admin when order is confirmed
+            const MailOptions = {
+                email: findOrder?.userId?.Email,
+                subject: 'Order Placed Successfuly',
+                message: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmation</title>
+</head>
+<body style="font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background-color: #f0faf0; color: #1a1a1a;">
+  <div style="max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+   
+    <div style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: #ffffff; padding: 32px 20px; text-align: center;">
+      <h2 style="margin: 0; font-size: 28px; font-weight: 600;">Order Confirmed! 🎉</h2>
+      <p style="margin: 8px 0 0; opacity: 0.9;">Thank you for your purchase</p>
+    </div>
+
+    <div style="padding: 32px 24px;">
+      <div style="background: #f0fdf4; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+        <p style="margin: 0; font-size: 16px; line-height: 1.6;">
+          Dear ${findOrder?.userId?.Name},<br>
+          Your order has been successfully placed and confirmed. We're preparing your items for shipment!
+        </p>
+      </div>
+
+    
+      <div style="margin-bottom: 32px;">
+        <h3 style="color: #16a34a; font-size: 20px; margin: 0 0 16px; padding-bottom: 8px; border-bottom: 2px solid #dcfce7;">
+          Order Details
+        </h3>
+        <table style="width: 100%; border-collapse: separate; border-spacing: 0 4px;">
+          <tr>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 6px 0 0 6px;">Order ID:</td>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 0 6px 6px 0; font-weight: 500;">${findOrder?.orderId}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 6px 0 0 6px;">Email:</td>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 0 6px 6px 0; font-weight: 500;">${findOrder?.userId?.Email}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 6px 0 0 6px;">Order Date:</td>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 0 6px 6px 0; font-weight: 500;">${new Date(findOrder?.orderDate).toLocaleDateString()}</td>
+          </tr>
+        </table>
+      </div>
+
+
+      <div style="margin-bottom: 32px;">
+        <h3 style="color: #16a34a; font-size: 20px; margin: 0 0 16px; padding-bottom: 8px; border-bottom: 2px solid #dcfce7;">
+          Items Ordered
+        </h3>
+        <table style="width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 16px;">
+          <thead>
+            <tr style="background: #dcfce7;">
+              <th style="padding: 12px; text-align: left; border-radius: 6px 0 0 6px;">Product</th>
+              <th style="padding: 12px; text-align: center;">Qty</th>
+              <th style="padding: 12px; text-align: right; border-radius: 0 6px 6px 0;">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${findOrder?.items.map(item => `
+              <tr style="background: #f0fdf4;">
+                <td style="padding: 12px; border-radius: 6px 0 0 6px;">${item.name}</td>
+                <td style="padding: 12px; text-align: center;">${item.quantity}</td>
+                <td style="padding: 12px; text-align: right; border-radius: 0 6px 6px 0;">₹${item.price}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+
+      <div style="margin-bottom: 32px;">
+        <h3 style="color: #16a34a; font-size: 20px; margin: 0 0 16px; padding-bottom: 8px; border-bottom: 2px solid #dcfce7;">
+          Payment Information
+        </h3>
+        <table style="width: 100%; border-collapse: separate; border-spacing: 0 4px;">
+          <tr>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 6px 0 0 6px;">Total Amount:</td>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 0 6px 6px 0; font-weight: 600;">₹${findOrder?.totalAmount}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 6px 0 0 6px;">Payment Amount:</td>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 0 6px 6px 0; font-weight: 600;">₹${findOrder?.payAmt}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 6px 0 0 6px;">Payment Method:</td>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 0 6px 6px 0;">${findOrder?.payment?.method}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 6px 0 0 6px;">Transaction ID:</td>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 0 6px 6px 0;">${findOrder?.payment?.transactionId}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 6px 0 0 6px;">Payment Status:</td>
+            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 0 6px 6px 0;">
+              <span style="background: #16a34a; color: white; padding: 4px 12px; border-radius: 12px; font-size: 14px;">${findOrder?.payment?.status}</span>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+
+      <div style="margin-bottom: 32px;">
+        <h3 style="color: #16a34a; font-size: 20px; margin: 0 0 16px; padding-bottom: 8px; border-bottom: 2px solid #dcfce7;">
+          Delivery Address
+        </h3>
+        <div style="background: #f0fdf4; padding: 16px; border-radius: 12px;">
+          <p style="margin: 0; line-height: 1.6;">
+            ${findOrder?.shipping?.addressLine}<br>
+            ${findOrder?.shipping?.city}, ${findOrder?.shipping?.state}, ${findOrder?.shipping?.postCode}<br>
+            <strong>Mobile:</strong> ${findOrder?.shipping?.mobileNumber}
+          </p>
+        </div>
+      </div>
+
+
+      <div style="background: #dcfce7; border-radius: 12px; padding: 20px; text-align: center; margin-top: 32px;">
+        <p style="margin: 0; font-size: 15px; line-height: 1.6;">
+          Need help? Contact our support team at<br>
+          <a href="mailto:support@company.com" style="color: #16a34a; text-decoration: none; font-weight: 500;">support@company.com</a>
+        </p>
+      </div>
+    </div>
+
+  
+    <div style="background: #16a34a; padding: 20px; text-align: center; color: #ffffff;">
+      <p style="margin: 0; font-size: 14px;">
+        &copy; ${new Date().getFullYear()} Your Company Name. All rights reserved.
+      </p>
+    </div>
+  </div>
+</body>
+</html>`,
+            }
+            await sendEmail(MailOptions)
             return res.redirect(successRedirect);
         } else {
             const failureRedirect = "https://panandacademy.com/payment-failed";

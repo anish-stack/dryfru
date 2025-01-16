@@ -105,8 +105,8 @@ const Product_Schema = new mongoose.Schema(
             },
         ],
         category: {
-            type: String,
-            default: null,
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Category",
         },
         extra_description: {
             type: String,

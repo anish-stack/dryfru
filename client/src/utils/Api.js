@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const findMyDetails = async () => {
     try {
-        const { data } = await axios.get('https://www.api.dyfru.com/api/v1/my-details', {
+        const { data } = await axios.get('http://localhost:7400/api/v1/my-details', {
             headers: {
                 Authorization: `Bearer ${sessionStorage.getItem('token_login')}`,
             },
@@ -19,10 +19,34 @@ export const findMyDetails = async () => {
     }
 };
 
+export const findMarqueee = async () => {
+
+
+    try {
+        const { data } = await axios.get('http://localhost:7400/api/v1/admin/annoncements');
+        console.log("found", data.data);
+        return data.data
+
+    } catch (error) {
+        console.error("findMarqueeefindMarqueeefindMarqueee", error);
+
+    }
+};
+export const findNavs = async () => {
+    try {
+        const { data } = await axios.get('http://localhost:7400/api/v1/admin/category');
+      
+        return data.categories
+
+    } catch (error) {
+        console.error("findNavs", error);
+
+    }
+};
 
 export const findMyLastOrder = async () => {
     try {
-        const { data } = await axios.get('https://www.api.dyfru.com/api/v1/my-last-order', {
+        const { data } = await axios.get('http://localhost:7400/api/v1/my-last-order', {
             headers: {
                 Authorization: `Bearer ${sessionStorage.getItem('token_login')}`,
             },
@@ -40,7 +64,7 @@ export const findMyLastOrder = async () => {
 
 export const findSettings = async () => {
     try {
-        const { data } = await axios.get('https://www.api.dyfru.com/api/v1/admin/settings');
+        const { data } = await axios.get('http://localhost:7400/api/v1/admin/settings');
         if (data && data.data) {
             return data.data;
         }
@@ -54,7 +78,7 @@ export const findSettings = async () => {
 
 export const findMyAllOrders = async () => {
     try {
-        const { data } = await axios.get('https://www.api.dyfru.com/api/v1/my-all-order', {
+        const { data } = await axios.get('http://localhost:7400/api/v1/my-all-order', {
             headers: {
                 Authorization: `Bearer ${sessionStorage.getItem('token_login')}`,
             },
@@ -73,7 +97,7 @@ export const findMyAllOrders = async () => {
 
 export const ApiHandleLogout = async () => {
     try {
-        const { data } = await axios.get('https://www.api.dyfru.com/api/v1/logout', {
+        const { data } = await axios.get('http://localhost:7400/api/v1/logout', {
             headers: {
                 Authorization: `Bearer ${sessionStorage.getItem('token_login')}`,
             },

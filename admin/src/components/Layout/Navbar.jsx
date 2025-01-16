@@ -2,7 +2,7 @@ import { FiMenu, FiSun, FiMoon } from 'react-icons/fi'
 
 export default function Navbar({ toggleSidebar, darkMode, toggleDarkMode }) {
   return (
-    <nav className="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700">
+    <nav className="bg-whit fixed w-full z-50 bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700">
       <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
@@ -12,7 +12,7 @@ export default function Navbar({ toggleSidebar, darkMode, toggleDarkMode }) {
             >
               <FiMenu className="h-6 w-6" />
             </button>
-            <h1 className="ml-4 text-xl font-bold text-indigo-600 dark:text-indigo-400">E-Commerce Dashboard</h1>
+            <h1 className="ml-4 text-xl font-bold text-indigo-600 dark:text-indigo-400">Dyfru Dashboard</h1>
           </div>
           <div className="flex items-center space-x-4">
             <button

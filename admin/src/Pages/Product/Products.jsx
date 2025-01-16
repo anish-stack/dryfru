@@ -11,9 +11,10 @@ const Products = () => {
 
   // Fetch products from the API
   useEffect(() => {
-    axios.get('https://www.api.dyfru.com/api/v1/get-product')
+    axios.get('http://localhost:7400/api/v1/get-product')
       .then(response => {
         if (response.data.success) {
+          console.log(response.data)
           setProducts(response.data.products);
         }
       })
@@ -42,20 +43,20 @@ const Products = () => {
   };
 
   const handleEdit = (id) => {
-   window.location.href=`/products/edit/${id}`
+    window.location.href = `/products/edit/${id}`
   };
 
-  const handleDeleteProduct = async(id) => {
+  const handleDeleteProduct = async (id) => {
     try {
-        const res = await axios.delete(`https://www.api.dyfru.com/api/v1/delete-product/${id}`)
-        if(res.data.success) {
-            setProducts(products.filter(product => product._id!== id))
-            toast.success("Product deleted successfully")
-        } else {
-            console.log("Error deleting product", res.data.message)
-        }
+      const res = await axios.delete(`http://localhost:7400/api/v1/delete-product/${id}`)
+      if (res.data.success) {
+        setProducts(products.filter(product => product._id !== id))
+        toast.success("Product deleted successfully")
+      } else {
+        console.log("Error deleting product", res.data.message)
+      }
     } catch (error) {
-        console.log("Internal server error",error)
+      console.log("Internal server error", error)
     }
   }
 
@@ -88,10 +89,13 @@ const Products = () => {
                 Discount
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Discount Price  
+                Discount Price
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Stock
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                category
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Variants
@@ -125,19 +129,19 @@ const Products = () => {
                     <div className="text-sm text-gray-900">
                       {product.Varient.length > 0 && (
                         <>
-                          ₹{product.Varient[0].price} 
+                          ₹{product.Varient[0].price}
                         </>
                       )}
                     </div>
                   ) : (
                     <div className="text-sm text-gray-900">
                       ₹{product.price}
-                    
+
                     </div>
                   )}
                 </td>
                 <td>
-                {product.isVarient ? (
+                  {product.isVarient ? (
                     <div className="text-sm text-gray-900">
                       {product.Varient.length > 0 && (
                         <>
@@ -148,27 +152,28 @@ const Products = () => {
                   ) : (
                     <div className="text-sm text-gray-900">
                       {product.discount}%
-                    
+
                     </div>
                   )}
-  
+
                 </td>
+               
                 <td>
-                {product.isVarient ? (
+                  {product.isVarient ? (
                     <div className="text-sm text-gray-900">
                       {product.Varient.length > 0 && (
                         <>
-                         ₹{product.Varient[0].price_after_discount || 0}
+                          ₹{product.Varient[0].price_after_discount || 0}
                         </>
                       )}
                     </div>
                   ) : (
                     <div className="text-sm text-gray-900">
                       ₹{product.afterDiscountPrice || 0}
-                    
+
                     </div>
                   )}
-  
+
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   {product.isVarient ? (
@@ -181,6 +186,9 @@ const Products = () => {
                   ) : (
                     <div className="text-sm text-gray-900">{product.stock}</div>
                   )}
+                </td>
+                <td>
+                  {product?.category?.name}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   {product.isVarient ? (
@@ -259,11 +267,10 @@ const Products = () => {
                 <button
                   key={i + 1}
                   onClick={() => setCurrentPage(i + 1)}
-                  className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                    currentPage === i + 1
+                  className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${currentPage === i + 1
                       ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
                       : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                  }`}
+                    }`}
                 >
                   {i + 1}
                 </button>

@@ -3,6 +3,7 @@ import axios from 'axios';
 
 const AllUsers = () => {
   const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [filters, setFilters] = useState({
     startDate: '',
     endDate: '',
@@ -15,24 +16,12 @@ const AllUsers = () => {
   });
   const [loading, setLoading] = useState(false);
 
+  // Fetch all users
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('https://www.api.dyfru.com/api/v1/admin/get-users', {
-        params: {
-          page: pagination.currentPage,
-          search: filters.searchTerm,
-          startDate: filters.startDate,
-          endDate: filters.endDate,
-          isVerified: filters.isVerified,
-        },
-      });
-
+      const response = await axios.get('http://localhost:7400/api/v1/admin/get-users');
       setUsers(response.data.data);
-      setPagination({
-        ...pagination,
-        totalPages: Math.ceil(response.data.total / 10), // Assuming 10 users per page
-      });
     } catch (error) {
       console.error('Error fetching users:', error);
     } finally {
@@ -40,93 +29,111 @@ const AllUsers = () => {
     }
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, [pagination.currentPage, filters]);
+  // Apply filters and pagination to the users
+  const applyFiltersAndPagination = () => {
+    let filteredData = users;
 
+    // Apply search filter
+    if (filters.searchTerm) {
+      filteredData = filteredData.filter(user => 
+        user.Name.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        user.Email.toLowerCase().includes(filters.searchTerm.toLowerCase()) 
+      );
+    }
+
+    // Apply date range filter
+    if (filters.startDate) {
+      filteredData = filteredData.filter(user => 
+        new Date(user.createdAt) >= new Date(filters.startDate)
+      );
+    }
+
+    if (filters.endDate) {
+      filteredData = filteredData.filter(user => 
+        new Date(user.createdAt) <= new Date(filters.endDate)
+      );
+    }
+
+    // Apply verification filter
+    if (filters.isVerified !== '') {
+      filteredData = filteredData.filter(user => 
+        user.isVerified.toString() === filters.isVerified
+      );
+    }
+
+    // Apply pagination
+    const itemsPerPage = 10;
+    const startIndex = (pagination.currentPage - 1) * itemsPerPage;
+    const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+
+    setFilteredUsers(paginatedData);
+    setPagination({
+      ...pagination,
+      totalPages: Math.ceil(filteredData.length / itemsPerPage),
+    });
+  };
+
+  // Update filters state
   const handleSearchChange = (e) => {
     setFilters({ ...filters, searchTerm: e.target.value });
   };
 
   const handleDateChange = (e) => {
-    setFilters({
-      ...filters,
-      [e.target.name]: e.target.value,
-    });
+    setFilters({ ...filters, [e.target.name]: e.target.value });
   };
 
   const handleFilterChange = (e) => {
-    setFilters({
-      ...filters,
-      isVerified: e.target.value,
-    });
+    setFilters({ ...filters, isVerified: e.target.value });
   };
 
   const handlePaginationChange = (page) => {
-    setPagination({
-      ...pagination,
-      currentPage: page,
-    });
+    setPagination({ ...pagination, currentPage: page });
   };
 
-  const handleAction = (action, userId) => {
-    if (action === 'block') {
-      // Call block user API here
-    } else if (action === 'delete') {
-      // Call delete user API here
-    }
-  };
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    applyFiltersAndPagination();
+  }, [filters, pagination.currentPage, users]);
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">All Users</h1>
-      
-      {/* Filters Section */}
-      <div className="mb-4 grid grid-cols-1 sm:grid-cols-4 gap-4">
+    <div className="container mx-auto p-6">
+   
+      <div className="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <label className="block text-sm font-medium">Search by Name, Email, or Phone</label>
+          <label className="block dark:text-white text-gray-900  text-sm font-medium mb-1">Search by Name, Email, or Phone</label>
           <input
             type="text"
             value={filters.searchTerm}
             onChange={handleSearchChange}
-            className="w-full p-2 border border-gray-300 rounded"
+            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium">Start Date</label>
+          <label className="block text-sm dark:text-white text-gray-900 font-medium mb-1">Start Date</label>
           <input
             type="date"
             name="startDate"
             value={filters.startDate}
             onChange={handleDateChange}
-            className="w-full p-2 border border-gray-300 rounded"
+            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium">End Date</label>
+          <label className="block text-sm dark:text-white text-gray-900 font-medium mb-1">End Date</label>
           <input
             type="date"
             name="endDate"
             value={filters.endDate}
             onChange={handleDateChange}
-            className="w-full p-2 border border-gray-300 rounded"
+            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium">Verified</label>
-          <select
-            onChange={handleFilterChange}
-            value={filters.isVerified}
-            className="w-full p-2 border border-gray-300 rounded"
-          >
-            <option value="">All</option>
-            <option value="true">Verified</option>
-            <option value="false">Not Verified</option>
-          </select>
-        </div>
       </div>
 
       {/* User Table */}
@@ -146,7 +153,7 @@ const AllUsers = () => {
               <td colSpan="5" className="text-center py-4">Loading...</td>
             </tr>
           ) : (
-            users.map((user) => (
+            filteredUsers.map((user) => (
               <tr key={user._id}>
                 <td className="py-2 px-4 border-b">{user.Name}</td>
                 <td className="py-2 px-4 border-b">{user.Email}</td>
@@ -154,13 +161,13 @@ const AllUsers = () => {
                 <td className="py-2 px-4 border-b">{user.Role}</td>
                 <td className="py-2 px-4 border-b">
                   <button
-                    onClick={() => handleAction('block', user._id)}
+                    // onClick={() => handleAction('block', user._id)}
                     className="bg-yellow-500 text-white px-3 py-1 rounded mr-2"
                   >
                     Block
                   </button>
                   <button
-                    onClick={() => handleAction('delete', user._id)}
+                    // onClick={() => handleAction('delete', user._id)}
                     className="bg-red-500 text-white px-3 py-1 rounded"
                   >
                     Delete
@@ -181,7 +188,7 @@ const AllUsers = () => {
         >
           First
         </button>
-        <div>
+        <div className='dark:text-white text-gray-900'>
           Page {pagination.currentPage} of {pagination.totalPages}
         </div>
         <button

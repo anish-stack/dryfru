@@ -48,8 +48,6 @@ const connectRedis = async () => {
 })();
 
 app.use('/api/v1',route)
-
-// Start server
 app.listen(port, () => {
     console.log(`Bull Board available at http://localhost:${port}/admin/queues`);
     console.log(`Server is running on http://localhost:${port}`);

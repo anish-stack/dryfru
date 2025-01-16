@@ -101,7 +101,7 @@ exports.createProduct = async (req, res) => {
 
 exports.getAllProducts = async (req, res) => {
     try {
-        const products = await ProductModel.find().sort({ createdAt: -1 });
+        const products = await ProductModel.find().sort({ createdAt: -1 }).populate('category');
         res.status(200).json({
             success: true,
             message: "Products fetched successfully",
@@ -115,6 +115,33 @@ exports.getAllProducts = async (req, res) => {
         });
     }
 };
+
+
+exports.getProductsByCategory = async (req, res) => {
+    try {
+        if (!req.query.id) {
+            return res.status(400).json({
+                success: false,
+                message: "Category ID is required",
+            });
+        }
+        const products = await ProductModel.find({ category: req.query.id }).sort({ createdAt: -1 }).populate('category');
+        res.status(200).json({
+            success: true,
+            count:products.length,
+            message: "Products fetched successfully",
+           data: products,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Error fetching products",
+            error: error.message,
+        });
+    }
+};
+
+
 
 exports.getProductById = async (req, res) => {
     try {
@@ -131,7 +158,7 @@ exports.getProductById = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Product fetched successfully",
-            data:product,
+            data: product,
         });
     } catch (error) {
         res.status(500).json({

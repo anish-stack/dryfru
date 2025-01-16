@@ -72,6 +72,7 @@ const emailTemplates = {
         </body>
         </html>
     `,
+    
 
     // Default fallback template
     default: () => `

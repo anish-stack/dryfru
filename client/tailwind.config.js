@@ -12,6 +12,9 @@ module.exports = {
           '100%': { transform: 'translateX(-100%)' }, // Adjusted to scroll completely
         },
       },
+    height: {
+      'safe-area': 'env(safe-area-inset-bottom, 0px)'
+    }
     },
   },
   plugins: [],

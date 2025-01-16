@@ -1,34 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { FiMinus, FiPlus, FiShoppingCart } from 'react-icons/fi';
-import p1 from './peanut1.jpg'
-import p2 from './peanut2.jpg'
 import { useParams } from "react-router-dom";
 import axios from 'axios';
 import ProductCard from '../../components/ProductCard/ProductCard';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { addProduct } from '../../store/slice/cart.slice';
 import toast from 'react-hot-toast';
-
 
 function ProductPage() {
   const { _id } = useParams();
   const dispatch = useDispatch();
-  const { cart } = useSelector((state) => state.cart);
-
-
   const [selectedVariant, setSelectedVariant] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [product, setProduct] = useState({})
+  const [product, setProduct] = useState({});
+  const [mainImage, setMainImage] = useState('');
 
   const handleFetchProduct = async () => {
     try {
-      const { data } = await axios.get(`https://www.api.dyfru.com/api/v1/get-product/${_id}`)
-      setProduct(data.data)
+      const { data } = await axios.get(`http://localhost:7400/api/v1/get-product/${_id}`)
+      setProduct(data.data);
+      setMainImage(data.data?.ProductMainImage?.url);
     } catch (error) {
       console.log("Internal server error", error)
     }
   }
-
 
   useEffect(() => {
     handleFetchProduct()
@@ -38,8 +33,6 @@ function ProductPage() {
     })
   }, [_id])
 
-
-
   const handleQuantityChange = (increment) => {
     const newQuantity = quantity + increment;
     if (newQuantity >= 1 && newQuantity <= (product.isVarient ? product.Varient[selectedVariant].stock_quantity : product.stock)) {
@@ -48,7 +41,6 @@ function ProductPage() {
   };
 
   const handleAddToCart = (product) => {
-
     const selected = {
       product_id: product._id,
       product_name: product.product_name,
@@ -56,46 +48,57 @@ function ProductPage() {
       discount_percentage: product.isVarient ? product.Varient[selectedVariant].discount_percentage : 0,
       price_after_discount: product.isVarient ? product.Varient[selectedVariant].price_after_discount : product.price,
       isVarient: product.isVarient,
-      Qunatity:quantity,
+      Qunatity: quantity,
       variantId: product.isVarient ? product.Varient[0]._id : null,
-
       variant: product.isVarient ? product.Varient[selectedVariant].quantity : null,
       image: product?.ProductMainImage?.url,
     }
-    console.log(selected)
     dispatch(addProduct(selected));
     toast.success('Hooray! Your product has been added to the cart successfully.')
-    // console.log('Added to cart:', {
-    //   product: product.product_name,
-    //   quantity,
-    //   variant: product.isVarient ? product.Varient[selectedVariant].quantity : null,
-    // });
   };
+
+  // Get all available product images
+  const productImages = [
+    product?.ProductMainImage?.url,
+    product?.SecondImage?.url,
+    product?.ThirdImage?.url,
+    product?.FourthImage?.url,
+    product?.FifthImage?.url
+  ].filter(Boolean); // Remove null/undefined values
 
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="bg-white rounded-2xl  overflow-hidden">
+        <div className="bg-white rounded-2xl overflow-hidden">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-3 md:p-8">
             {/* Image Gallery */}
             <div className="space-y-4">
-              <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg">
+              <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg bg-gray-50">
                 <img
-                  src={product?.ProductMainImage?.url}
+                  src={mainImage}
                   alt={product.product_name}
                   className="h-96 w-full object-cover object-center hover:scale-105 transition-transform duration-300"
                 />
               </div>
-              <div className="grid grid-cols-4 gap-4">
-                {[product?.SecondImage?.url, product?.ThirdImage?.url].map((image, index) => (
-                  image && (
+              <div className="grid grid-cols-5 gap-2">
+                {productImages.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setMainImage(image)}
+                    className={`relative rounded-lg overflow-hidden h-20 transition-all duration-200 ${mainImage === image
+                        ? 'ring-2 ring-green-500 ring-offset-2'
+                        : 'hover:ring-2 hover:ring-gray-300 hover:ring-offset-2'
+                      }`}
+                  >
                     <img
-                      key={index}
                       src={image}
-                      alt={`Product view ${index + 2}`}
-                      className="h-24 w-full object-cover rounded-lg cursor-pointer hover:opacity-75 transition-opacity"
+                      alt={`Product view ${index + 1}`}
+                      className="h-full w-full object-cover"
                     />
-                  )
+                    {mainImage === image && (
+                      <div className="absolute inset-0 bg-green-500 bg-opacity-10" />
+                    )}
+                  </button>
                 ))}
               </div>
             </div>
@@ -131,14 +134,14 @@ function ProductPage() {
               {product.isVarient && (
                 <div className="space-y-4">
                   <h3 className="text-sm font-medium text-gray-900">Size Options</h3>
-                  <div className="flex space-x-4">
+                  <div className="flex flex-wrap gap-3">
                     {product.Varient.map((variant, index) => (
                       <button
                         key={index}
                         onClick={() => setSelectedVariant(index)}
-                        className={`px-4 py-2 rounded-lg border ${selectedVariant === index
-                          ? 'border-green-600 bg-green-50 text-green-600'
-                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                        className={`px-4 py-2 rounded-lg border transition-all duration-200 ${selectedVariant === index
+                            ? 'border-green-600 bg-green-50 text-green-600 shadow-sm'
+                            : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
                           }`}
                       >
                         {variant.quantity}
@@ -151,17 +154,17 @@ function ProductPage() {
               {/* Quantity Selector */}
               <div className="space-y-4">
                 <h3 className="text-sm font-medium text-gray-900">Quantity</h3>
-                <div className="flex justify-between border md:border-0 py-2 px-3 rounded-full md:justify-start items-center space-x-4">
+                <div className="inline-flex items-center border border-gray-200 rounded-full p-1">
                   <button
                     onClick={() => handleQuantityChange(-1)}
-                    className="p-2 rounded-full border border-gray-200 hover:bg-gray-50"
+                    className="p-2 rounded-full hover:bg-gray-100 transition-colors"
                   >
                     <FiMinus className="w-4 h-4" />
                   </button>
-                  <span className="text-lg font-medium">{quantity}</span>
+                  <span className="w-12 text-center text-lg font-medium">{quantity}</span>
                   <button
                     onClick={() => handleQuantityChange(1)}
-                    className="p-2 rounded-full border border-gray-200 hover:bg-gray-50"
+                    className="p-2 rounded-full hover:bg-gray-100 transition-colors"
                   >
                     <FiPlus className="w-4 h-4" />
                   </button>
@@ -171,32 +174,22 @@ function ProductPage() {
               {/* Add to Cart Button */}
               <button
                 onClick={() => handleAddToCart(product)}
-                className="w-full bg-green-600 text-white py-3 px-8 rounded-lg flex items-center justify-center space-x-2 hover:bg-green-700 transition-colors"
+                className="w-full bg-green-600 text-white py-3 px-8 rounded-lg flex items-center justify-center space-x-2 hover:bg-green-700 transition-all duration-200 transform hover:scale-[1.02]"
               >
                 <FiShoppingCart className="w-5 h-5" />
                 <span>Add to Cart</span>
               </button>
-
-
             </div>
           </div>
-          {/* Additional Information */}
-          <div className="border-t border-gray-200 pt-6 space-y-4">
 
+          {/* Additional Information */}
+          <div className="border-t border-gray-200 p-6 space-y-4">
             {product.extra_description && (
               <div>
-                <h3 className="text-sm font-medium text-gray-900">Additional Information</h3>
-                <p className="mt-1 text-sm text-gray-500">{product.extra_description}</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Additional Information</h3>
+                <p className="text-gray-600">{product.extra_description}</p>
               </div>
             )}
-            {/* <div>
-                  <h3 className="text-sm font-medium text-gray-900">Stock Status</h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    {product.isVarient
-                      ? `${product.Varient[selectedVariant].stock_quantity} units available`
-                      : `${product.stock} units available`}
-                  </p>
-                </div> */}
           </div>
         </div>
         <ProductCard bg={false} title={'Related Products'} />

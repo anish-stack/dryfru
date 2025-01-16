@@ -12,6 +12,21 @@ const settingSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    paymentGateway: {
+        key:{
+            type: String,
+          
+        },
+        secret: {
+            type: String,
+          
+        },
+        provider:{
+            type: String,
+          
+        }
+
+    },
     currency: {
         type: String,
        default: 'INR'

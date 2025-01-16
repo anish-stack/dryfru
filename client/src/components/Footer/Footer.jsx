@@ -1,12 +1,16 @@
-import React from 'react';
-import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin, ChevronRight, Leaf } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin, ChevronRight, Leaf, YoutubeIcon } from 'lucide-react';
 import logo from './footlogo.png'
-
+import axios from 'axios'
+import { findSettings } from '../../utils/Api';
 const Footer = () => {
+  const [pages, setPages] = useState([])
+  const [settings, setSettings] = useState(null)
+
   const quickLinks = [
     { name: 'Login', href: '/Login' },
     { name: 'Shop', href: '/shop' },
-    // { name: 'Recipes', href: '#' },
+    { name: 'support', href: '/support' },
     { name: 'Cart', href: '/Cart' }
   ];
 
@@ -23,6 +27,28 @@ const Footer = () => {
     { name: 'Returns', href: '#' },
     { name: 'Track Order', href: '#' }
   ];
+  const socialMediaIcons = [
+    { icon: Facebook, url: settings?.socialMediaLinks?.facebook },
+    { icon: Instagram, url: settings?.socialMediaLinks?.instagram },
+    { icon: Twitter, url: settings?.socialMediaLinks?.twitter },
+    { icon: Linkedin, url: settings?.socialMediaLinks?.linkedin },
+    { icon: 'YouTubeIcon', url: settings?.socialMediaLinks?.youtube }, // Add YouTube icon
+  ];
+  useEffect(() => {
+    const fetchPages = async () => {
+      const dataSetting = await findSettings()
+      setSettings(dataSetting)
+      try {
+        const { data } = await axios.get('http://localhost:7400/api/v1/admin/pages')
+        if (data) {
+          setPages(data.pages)
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    fetchPages()
+  }, [])
 
   return (
     <footer className="relative bg-[#005D31] px-0 md:px-10">
@@ -37,7 +63,7 @@ const Footer = () => {
       </div>
 
       <div className="container mx-auto px-6 pt-24 pb-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
           {/* Company Info */}
           <div className="space-y-6">
             <div className="flex items-center gap-2">
@@ -49,23 +75,23 @@ const Footer = () => {
               Premium quality nuts and dry fruits, carefully sourced and delivered fresh to your doorstep.
             </p>
             <div className="space-y-4">
-              <a href="tel:+12345678901" className="flex items-center gap-3 text-gray-600 hover:text-amber-600 transition-colors group">
+              <a href={`tel:${settings?.contactNumber}`} className="flex items-center gap-3 text-gray-600 hover:text-amber-600 transition-colors group">
                 <div className="p-2 bg-amber-100 rounded-lg group-hover:bg-amber-200 transition-colors">
                   <Phone className="h-4 w-4 text-amber-600" strokeWidth={1.5} />
                 </div>
-                <span className=' text-white'>+1 234 567 890</span>
+                <span className=' text-white'>{settings?.contactNumber}</span>
               </a>
-              <a href="mailto:support@dyfru.com" className="flex items-center gap-3 text-gray-600 hover:text-amber-600 transition-colors group">
+              <a href={`mailto:${settings?.supportEmail}`} className="flex items-center gap-3 text-gray-600 hover:text-amber-600 transition-colors group">
                 <div className="p-2 bg-amber-100 rounded-lg group-hover:bg-amber-200 transition-colors">
                   <Mail className="h-4 w-4 text-amber-600" strokeWidth={1.5} />
                 </div>
-                <span className=' text-white'>support@dyfru.com</span>
+                <span className=' text-white'>{settings?.supportEmail}</span>
               </a>
               <div className="flex items-center gap-3 text-gray-600">
                 <div className="p-2 bg-amber-100 rounded-lg">
                   <MapPin className="h-4 w-4 text-amber-600" strokeWidth={1.5} />
                 </div>
-                <span className=' text-white'>123 Nut Street, Foodville</span>
+                <span className=' text-white'>{settings?.address}</span>
               </div>
             </div>
           </div>
@@ -79,6 +105,19 @@ const Footer = () => {
                   <a href={link.href} className="group flex items-center gap-2 text-white hover:text-amber-600 transition-colors">
                     <ChevronRight className="h-4 w-4 text-amber-400 group-hover:text-amber-600 transition-colors" strokeWidth={1.5} />
                     <span>{link.name}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="lg:ml-12">
+            <h3 className="text-lg font-semibold text-white mb-6">Policy</h3>
+            <ul className="space-y-3">
+              {pages.map((link) => (
+                <li key={link._id}>
+                  <a href={`/pages/${link?.slug}`} className="group flex items-center gap-2 text-white hover:text-amber-600 transition-colors">
+                    <ChevronRight className="h-4 w-4 text-amber-400 group-hover:text-amber-600 transition-colors" strokeWidth={1.5} />
+                    <span>{link.slug}</span>
                   </a>
                 </li>
               ))}
@@ -117,7 +156,7 @@ const Footer = () => {
         </div>
 
         {/* Newsletter */}
-        <div className="mt-16 p-8 bg-[#E8F4EC] rounded-2xl shadow-sm border border-amber-100">
+        {/* <div className="mt-16 p-8 bg-[#E8F4EC] rounded-2xl shadow-sm border border-amber-100">
           <div className="max-w-2xl mx-auto text-center">
             <h3 className="text-xl font-semibold text-gray-800 mb-3">Subscribe to Our Newsletter</h3>
             <p className="text-gray-600 mb-6">Stay updated with our latest products and exclusive offers.</p>
@@ -132,7 +171,7 @@ const Footer = () => {
               </button>
             </form>
           </div>
-        </div>
+        </div> */}
 
         {/* Bottom Footer */}
         <div className="mt-16 pt-8 border-t border-amber-200">
@@ -141,16 +180,25 @@ const Footer = () => {
               © {new Date().getFullYear()} Dryfru. All rights reserved.
             </p>
 
-            {/* Social Links */}
+
             <div className="flex items-center gap-3">
-              {[Facebook, Twitter, Instagram, Linkedin].map((Icon, index) => (
-                <a
-                  key={index}
-                  href="#"
-                  className="p-2 bg-white rounded-lg hover:bg-amber-50 border border-amber-100 hover:border-amber-200 transition-colors group"
-                >
-                  <Icon className="h-5 w-5 text-amber-600 group-hover:text-amber-700" strokeWidth={1.5} />
-                </a>
+              {socialMediaIcons.map((social, index) => (
+                social.url ? (
+                  <a
+                    key={index}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-white rounded-lg hover:bg-amber-50 border border-amber-100 hover:border-amber-200 transition-colors group"
+                  >
+
+                    {social.icon === 'YouTubeIcon' ? (
+                      <YoutubeIcon className="h-5 w-5 text-amber-600 group-hover:text-amber-700" strokeWidth={1.5} />
+                    ) : (
+                      <social.icon className="h-5 w-5 text-amber-600 group-hover:text-amber-700" strokeWidth={1.5} />
+                    )}
+                  </a>
+                ) : null
               ))}
             </div>
           </div>

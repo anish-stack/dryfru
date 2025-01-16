@@ -4,7 +4,7 @@ import Navbar from './Navbar'
 import Sidebar from './Sidebar'
 
 export default function DashboardLayout() {
-  const [darkMode, setDarkMode] = useState(false)
+  const [darkMode, setDarkMode] = useState(true)
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const navigate = useNavigate()
 
@@ -28,12 +28,13 @@ export default function DashboardLayout() {
         darkMode={darkMode}
         toggleDarkMode={() => setDarkMode(!darkMode)}
       />
-      <div className="flex">
-        <Sidebar isSidebarOpen={isSidebarOpen} onLogout={handleLogout} />
-        <main className="flex-1 p-6">
-          <Outlet />
-        </main>
-      </div>
+     <div className="flex">
+    <Sidebar isSidebarOpen={isSidebarOpen} onLogout={handleLogout} />
+    <main className={`flex-1 transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-16'} pt-14 p-6`}>
+      <Outlet />
+    </main>
+  </div>
+
     </div>
   )
 }

@@ -8,18 +8,18 @@ const Shop = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [priceRange, setPriceRange] = useState([0, 1000]);
+  const [priceRange, setPriceRange] = useState([0, 10000000000]);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState({});
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState('');
   const [stockFilter, setStockFilter] = useState('all');
-  const productsPerPage = 8;
+  const productsPerPage = 16;
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('https://www.api.dyfru.com/api/v1/get-product');
+      const response = await axios.get('http://localhost:7400/api/v1/get-product');
       const productData = response?.data?.products || [];
       setProducts(productData);
       setFilteredProducts(productData);
@@ -188,7 +188,7 @@ const Shop = () => {
               </select>
             </div>
 
-            {/* Price Range Filter */}
+            {/* Price Range Filter
             <div className="border-t pt-4">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-medium text-gray-900">Price Range</h3>
@@ -204,7 +204,7 @@ const Shop = () => {
                 onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
                 className="w-full h-2 bg-green-200 rounded-lg appearance-none cursor-pointer"
               />
-            </div>
+            </div> */}
           </div>
         </div>
 

@@ -52,6 +52,8 @@ const EditProduct = () => {
   })
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [allCategory, setCategory] = useState([])
+
   const { id } = useParams()
   const [isVariantOpen, setIsVariantOpen] = useState(true);
 
@@ -71,6 +73,21 @@ const EditProduct = () => {
       ],
     }));
   };
+  const fetchCategoryData = async () => {
+    try {
+      const res = await axios.get('http://localhost:7400/api/v1/admin/category')
+      const data = res.data.categories
+
+      console.log("categirr", res.data)
+      if (data) {
+        setCategory(data)
+      }
+
+    } catch (error) {
+      console.log(error)
+      setCategory([])
+    }
+  }
 
   const handleRemoveVarients = (index) => {
     const updatedVarients = formData.Varient.filter((_, i) => i !== index);
@@ -145,9 +162,13 @@ const EditProduct = () => {
 
   const handleFetchProductDetails = async () => {
     try {
-      const { data } = await axios.get(`https://www.api.dyfru.com/api/v1/get-product/${id}`)
-      console.log(data.product)
-      const productData = data.product
+      const { data } = await axios.get(`http://localhost:7400/api/v1/get-product/${id}`)
+
+      const productData = data?.data
+      setFormData((prevData) => ({
+        ...prevData,
+        category: productData?.category
+      }))
       setFormData(productData)
       if (productData) {
         setImages({
@@ -175,6 +196,7 @@ const EditProduct = () => {
 
 
   useEffect(() => {
+    fetchCategoryData()
     handleFetchProductDetails()
   }, [id])
 
@@ -183,64 +205,64 @@ const EditProduct = () => {
     const formDataObject = new FormData();
 
     try {
-        // Safely iterate over formData
-        Object.entries(formData).forEach(([key, value]) => {
-            if (value === null || value === undefined) {
-                // Skip null or undefined values
-                return;
-            }
-
-            if (typeof value === 'object' && value.file) {
-                // Handle file uploads
-                formDataObject.append(key, value.file);
-            } else if (key === 'Varient') {
-                // Handle Varient field (JSON.stringify)
-                formDataObject.append(key, JSON.stringify(value));
-                console.log(value);
-            } else {
-                // Append other non-file fields as-is
-                formDataObject.append(key, value);
-            }
-        });
-
-        // Send the form data via Axios
-        const { data } = await axios.post(
-            `https://www.api.dyfru.com/api/v1/update-product/${id}`,
-            formDataObject,
-            {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            }
-        );
-
-        console.log(data);
-
-        if (data.success) {
-            setSuccess(true);
-            setError('');
-            setLoading(false);
-            console.log('Product updated successfully');
-        } else {
-            setSuccess(false);
-            setError(data.message);
-            setLoading(false);
+      // Safely iterate over formData
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value === null || value === undefined) {
+          // Skip null or undefined values
+          return;
         }
 
-        // Reset state after 4 seconds
-        setTimeout(() => {
-            setSuccess(false);
-            setError('');
-            setLoading(false);
-        }, 4000);
-        window.location.reload()
-    } catch (error) {
-        setSuccess(false);
-        setError(error.response?.data?.message || "An error occurred. Please try again.");
+        if (typeof value === 'object' && value.file) {
+          // Handle file uploads
+          formDataObject.append(key, value.file);
+        } else if (key === 'Varient') {
+          // Handle Varient field (JSON.stringify)
+          formDataObject.append(key, JSON.stringify(value));
+          console.log(value);
+        } else {
+          // Append other non-file fields as-is
+          formDataObject.append(key, value);
+        }
+      });
+
+      // Send the form data via Axios
+      const { data } = await axios.post(
+        `http://localhost:7400/api/v1/update-product/${id}`,
+        formDataObject,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      console.log(data);
+
+      if (data.success) {
+        setSuccess(true);
+        setError('');
         setLoading(false);
-        console.error(error);
+        console.log('Product updated successfully');
+      } else {
+        setSuccess(false);
+        setError(data.message);
+        setLoading(false);
+      }
+
+      // Reset state after 4 seconds
+      setTimeout(() => {
+        setSuccess(false);
+        setError('');
+        setLoading(false);
+      }, 4000);
+      window.location.reload()
+    } catch (error) {
+      setSuccess(false);
+      setError(error.response?.data?.message || "An error occurred. Please try again.");
+      setLoading(false);
+      console.error(error);
     }
-};
+  };
 
 
 
@@ -282,16 +304,28 @@ const EditProduct = () => {
               label="Product Name"
               type="text"
               name="product_name"
-              value={formData.product_name}
+              value={formData?.product_name}
               onChange={handleInputChange}
             />
-            <Input
-              label="Category"
-              type="text"
-              name="category"
-              value={formData.category}
-              onChange={handleInputChange}
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Category
+              </label>
+              <select
+                name="category"
+                value={formData?.category || ''}
+                onChange={handleInputChange}
+                className="custom-select"
+              >
+                <option value="">Select Category</option>
+                {allCategory?.map((category) => (
+                  <option key={category._id} value={category._id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -299,14 +333,14 @@ const EditProduct = () => {
               label="Product Description"
               type="text"
               name="product_description"
-              value={formData.product_description}
+              value={formData?.product_description}
               onChange={handleInputChange}
             />
             <Input
               label="Extra Description"
               type="text"
               name="extra_description"
-              value={formData.extra_description}
+              value={formData?.extra_description}
               onChange={handleInputChange}
             />
           </div>
@@ -318,16 +352,16 @@ const EditProduct = () => {
                 <input
                   type="checkbox"
                   name="isVarient"
-                  checked={formData.isVarient}
+                  checked={formData?.isVarient}
                   onChange={handleInputChange}
                   className="hidden"
                 />
                 <div className="relative">
                   <div
-                    className={`w-14 h-5 rounded-full transition duration-300 ease-in-out ${formData.isVarient ? 'bg-indigo-600' : 'bg-gray-400'}`}
+                    className={`w-14 h-5 rounded-full transition duration-300 ease-in-out ${formData?.isVarient ? 'bg-indigo-600' : 'bg-gray-400'}`}
                   >
                     <div
-                      className={`absolute top-1 left-1 w-6 h-3 rounded-full bg-white shadow-md transition-transform duration-300 ease-in-out ${formData.isVarient ? 'transform translate-x-6' : ''}`}
+                      className={`absolute top-1 left-1 w-6 h-3 rounded-full bg-white shadow-md transition-transform duration-300 ease-in-out ${formData?.isVarient ? 'transform translate-x-6' : ''}`}
                     />
                   </div>
                 </div>
@@ -339,16 +373,16 @@ const EditProduct = () => {
                 <input
                   type="checkbox"
                   name="isShowOnHomeScreen"
-                  checked={formData.isShowOnHomeScreen}
+                  checked={formData?.isShowOnHomeScreen}
                   onChange={handleInputChange}
                   className="hidden"
                 />
                 <div className="relative">
                   <div
-                    className={`w-14 h-5 rounded-full transition duration-300 ease-in-out ${formData.isShowOnHomeScreen ? 'bg-indigo-600' : 'bg-gray-400'}`}
+                    className={`w-14 h-5 rounded-full transition duration-300 ease-in-out ${formData?.isShowOnHomeScreen ? 'bg-indigo-600' : 'bg-gray-400'}`}
                   >
                     <div
-                      className={`absolute top-1 left-1 w-6 h-3 rounded-full bg-white shadow-md transition-transform duration-300 ease-in-out ${formData.isShowOnHomeScreen ? 'transform translate-x-6' : ''}`}
+                      className={`absolute top-1 left-1 w-6 h-3 rounded-full bg-white shadow-md transition-transform duration-300 ease-in-out ${formData?.isShowOnHomeScreen ? 'transform translate-x-6' : ''}`}
                     />
                   </div>
                 </div>
@@ -356,20 +390,20 @@ const EditProduct = () => {
             </div>
           </div>
 
-          {formData.isVarient === false && (
+          {formData?.isVarient === false && (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <Input
                 label="Price"
                 type="text"
                 name="price"
-                value={formData.price}
+                value={formData?.price}
                 onChange={handleInputChange}
               />
               <Input
                 label="Discount"
                 type="text"
                 name="discount"
-                value={formData.discount}
+                value={formData?.discount}
                 onChange={handleInputChange}
               />
               <Input
@@ -377,7 +411,7 @@ const EditProduct = () => {
                 type="text"
                 name="afterDiscountPrice"
                 readonly={true}
-                value={formData.afterDiscountPrice}
+                value={formData?.afterDiscountPrice}
                 onChange={handleInputChange}
               />
               <Input
@@ -385,14 +419,14 @@ const EditProduct = () => {
                 type="text"
                 name="stock"
                 readonly={true}
-                value={formData.stock}
+                value={formData?.stock}
                 onChange={handleInputChange}
               />
             </div>
           )}
 
           {/* Variants Section */}
-          {formData.isVarient && (
+          {formData?.isVarient && (
             <div className="border dark:border-gray-700 rounded-lg overflow-hidden">
               <button
                 type="button"
@@ -405,7 +439,7 @@ const EditProduct = () => {
 
               {isVariantOpen && (
                 <div className="p-4 space-y-4">
-                  {formData.Varient.map((variant, index) => (
+                  {formData?.Varient.map((variant, index) => (
                     <div
                       key={index}
                       className="p-4 border dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700/50"
@@ -491,10 +525,10 @@ const EditProduct = () => {
                   onChange={(e) => handleFileChange(e, 'ProductMainImage')}
                   className="mt-1 block w-full text-sm text-gray-900 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700"
                 />
-                {formData.ProductMainImage && (
+                {formData?.ProductMainImage && (
                   <div className="mt-4">
                     <img
-                      src={formData.ProductMainImage.previewUrl ? formData.ProductMainImage.previewUrl:images.first?.previewUrl   }
+                      src={formData?.ProductMainImage.previewUrl ? formData.ProductMainImage.previewUrl : images.first?.previewUrl}
                       alt="Preview"
                       className="w-full h-32 object-cover rounded-md"
                     />
@@ -513,10 +547,10 @@ const EditProduct = () => {
                   onChange={(e) => handleFileChange(e, 'SecondImage')}
                   className="mt-1 block w-full text-sm text-gray-900 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700"
                 />
-                {formData.SecondImage && (
+                {formData?.SecondImage && (
                   <div className="mt-4">
                     <img
-                      src={formData.SecondImage.previewUrl ? formData.SecondImage.previewUrl :images.second?.previewUrl }
+                      src={formData?.SecondImage.previewUrl ? formData.SecondImage.previewUrl : images.second?.previewUrl}
                       alt="Preview"
                       className="w-full h-32 object-cover rounded-md"
                     />
@@ -535,10 +569,10 @@ const EditProduct = () => {
                   onChange={(e) => handleFileChange(e, 'ThirdImage')}
                   className="mt-1 block w-full text-sm text-gray-900 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700"
                 />
-                {formData.ThirdImage && (
+                {formData?.ThirdImage && (
                   <div className="mt-4">
                     <img
-                      src={formData.ThirdImage.previewUrl ? formData.ThirdImage.previewUrl : images.third?.previewUrl }
+                      src={formData?.ThirdImage.previewUrl ? formData.ThirdImage.previewUrl : images.third?.previewUrl}
                       alt="Preview"
                       className="w-full h-32 object-cover rounded-md"
                     />
@@ -557,10 +591,10 @@ const EditProduct = () => {
                   onChange={(e) => handleFileChange(e, 'FourthImage')}
                   className="mt-1 block w-full text-sm text-gray-900 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700"
                 />
-                {formData.FourthImage && (
+                {formData?.FourthImage && (
                   <div className="mt-4">
                     <img
-                      src={formData.FourthImage.previewUrl ? formData.FourthImage.previewUrl : images.fourth?.previewUrl }
+                      src={formData?.FourthImage.previewUrl ? formData.FourthImage.previewUrl : images.fourth?.previewUrl}
                       alt="Preview"
                       className="w-full h-32 object-cover rounded-md"
                     />
@@ -579,10 +613,10 @@ const EditProduct = () => {
                   onChange={(e) => handleFileChange(e, 'FifthImage')}
                   className="mt-1 block w-full text-sm text-gray-900 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700"
                 />
-                {formData.FifthImage && (
+                {formData?.FifthImage && (
                   <div className="mt-4">
                     <img
-                      src={formData.FifthImage.previewUrl ? formData.FifthImage.previewUrl : images.fifth?.previewUrl }
+                      src={formData?.FifthImage.previewUrl ? formData.FifthImage.previewUrl : images.fifth?.previewUrl}
                       alt="Preview"
                       className="w-full h-32 object-cover rounded-md"
                     />

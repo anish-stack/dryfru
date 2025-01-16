@@ -1,5 +1,5 @@
 import './App.css';
-import {Routes, Route} from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Home from './pages/Home/Home';
 import About from './pages/About/About';
 import Contact from './pages/Contact/Contact';
@@ -14,8 +14,12 @@ import CheckOut from './pages/Cart/CheckOut';
 import ReceiptComponent from './pages/Cart/Receipt';
 import Dashboard from './User_Dashboard/Dashboard';
 import { useEffect } from 'react';
+import Policy from './pages/Policy/Policy';
+import Support from './pages/Support/Support';
+import Category_page from './pages/Category_page/Category_page';
+import BottomNavigation from './components/Header/BottomNavigation';
 
-function App(){
+function App() {
 
   useEffect(() => {
 
@@ -25,21 +29,27 @@ function App(){
     })
   }, [window.location.pathname]);
   return (
-    <Routes>
-      <Route path='/' element={<Home />} />
-      <Route path='/about' element={<About/>} />
-      <Route path='/productpage/:_id' element={<ProductPage/>} />
-      <Route path='/contact' element={<Contact/>} />
-      <Route path='/shop' element={<Shop/>} />
-      <Route path='/Verify-Otp' element={<Otp/>} />
-      <Route path='/Cart' element={<Cart/>} />
-      <Route path='/procced-to-checkout' element={<CheckOut/>} />
-      <Route path='/Receipt/order-confirmed' element={<ReceiptComponent/>} />
-      <Route path='/profile/dashboard' element={<Dashboard/>} />
-      <Route path='/login' element={<Login/>}/>
-      <Route path='/register' element={<Register/>} />
-      <Route path='/forgetpassword' element={<ForgetPassword/>}/>
-    </Routes>
+    <>
+      <Routes>
+        <Route path='/' element={<Home />} />
+        <Route path='/about' element={<About />} />
+        <Route path='/productpage/:_id' element={<ProductPage />} />
+        <Route path='/contact' element={<Contact />} />
+        <Route path='/shop' element={<Shop />} />
+        <Route path='/Verify-Otp' element={<Otp />} />
+        <Route path='/Cart' element={<Cart />} />
+        <Route path='/procced-to-checkout' element={<CheckOut />} />
+        <Route path='/Receipt/order-confirmed' element={<ReceiptComponent />} />
+        <Route path='/pages/:page' element={<Policy />} />
+        <Route path='/support' element={<Support />} />
+        <Route path='/profile/dashboard' element={<Dashboard />} />
+        <Route path='/Page/details/:id/:category' element={<Category_page />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/register' element={<Register />} />
+        <Route path='/forgetpassword' element={<ForgetPassword />} />
+      </Routes>
+      {/* <BottomNavigation /> */}
+    </>
   );
 }
 export default App;

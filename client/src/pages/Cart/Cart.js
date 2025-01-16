@@ -1,50 +1,69 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { addProduct, updateQuantity } from '../../store/slice/cart.slice';
+import { findMyDetails } from '../../utils/Api';
 
 const Cart = () => {
     const dispatch = useDispatch();
-    const { cart } = useSelector((state) => state.cart);
+    const { cart } = useSelector((state) => state.cart) || [];
     const { wishlist } = useSelector((state) => state.whishlist);
+    const [user, setUser] = useState(true)
+    const findMyDetailsFor = async () => {
+        const token = sessionStorage.getItem('token_login')
+        if (token) {
+            setUser(true)
+        } else {
+            setUser(false)
+        }
+    }
 
+
+
+    useEffect(() => {
+        findMyDetailsFor()
+    }, [cart])
     const filteredWishlist = wishlist.filter(
         (wishItem) => !cart.some((cartItem) => cartItem.product_id === wishItem.product._id)
     );
 
     const calculateTotal = () => {
+        if (!Array.isArray(cart)) {
+            return 0; // Return 0 if cart is not an array
+        }
+    
         return cart.reduce((total, item) => total + (item.price_after_discount * item.Qunatity), 0);
     };
+    
 
     const handleQuantityUpdate = (id, variant, newQuantity) => {
         console.log(id, variant, newQuantity)
         dispatch(updateQuantity({ id, variant, quantity: newQuantity }));
     };
-      const handleAddToCart = (product) => {
-        console.log("product",product)
-    
-        const selected = {
-          product_id: product._id,
-          product_name: product.product_name,
-          price: product.isVarient ? product.Varient[0].price : product.price,
-          discount_percentage: product.isVarient ? product.Varient[0].discount_percentage : 0,
-          price_after_discount: product.isVarient ? product.Varient[0].price_after_discount : product.price,
-          isVarient: product.isVarient,
-          Qunatity:1,
-          variant: product.isVarient ? product.Varient[0].quantity : null,
-          variantId: product.isVarient ? product.Varient[0]._id : null,
+    const handleAddToCart = (product) => {
+        console.log("product", product)
 
-          image: product?.ProductMainImage?.url,
+        const selected = {
+            product_id: product._id,
+            product_name: product.product_name,
+            price: product.isVarient ? product.Varient[0].price : product.price,
+            discount_percentage: product.isVarient ? product.Varient[0].discount_percentage : 0,
+            price_after_discount: product.isVarient ? product.Varient[0].price_after_discount : product.price,
+            isVarient: product.isVarient,
+            Qunatity: 1,
+            variant: product.isVarient ? product.Varient[0].quantity : null,
+            variantId: product.isVarient ? product.Varient[0]._id : null,
+
+            image: product?.ProductMainImage?.url,
         }
-        console.log("varient",product.Varient)
-        console.log(selected)
-        // dispatch(addProduct(selected));
-    
+
+        dispatch(addProduct(selected));
+
         // console.log('Added to cart:', {
         //   product: product.product_name,
         //   quantity,
         //   variant: product.isVarient ? product.Varient[selectedVariant].quantity : null,
         // });
-      };
+    };
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -179,7 +198,7 @@ const Cart = () => {
                                                 <span className="text-lg font-bold text-green-600">₹{item.product.afterDiscountPrice}</span>
                                             </div>
 
-                                            <button onClick={()=>handleAddToCart(item.product)} className="w-full bg-white border-2 border-green-600 text-green-600 py-2.5 rounded-lg font-semibold 
+                                            <button onClick={() => handleAddToCart(item.product)} className="w-full bg-white border-2 border-green-600 text-green-600 py-2.5 rounded-lg font-semibold 
                         hover:bg-green-600 hover:text-white transition-all duration-300 flex items-center justify-center space-x-2 group">
                                                 <svg
                                                     xmlns="http://www.w3.org/2000/svg"
@@ -249,16 +268,30 @@ const Cart = () => {
                                     </div>
                                 </div>
                             </div>
-                            <button
-                            onClick={()=> window.location.href='/procced-to-checkout'}
-                                className="w-full mt-6 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
-                                disabled={cart.length === 0}
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                </svg>
-                                Proceed to Checkout
-                            </button>
+                            {user ? (
+                                <button
+                                    onClick={() => window.location.href = '/procced-to-checkout'}
+                                    className="w-full mt-6 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                                    disabled={cart.length === 0}
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                    </svg>
+                                    Proceed to Checkout
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => window.location.href = '/login'}
+                                    className="w-full mt-6 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                    </svg>
+                                    Login to Checkout
+                                </button>
+                            )}
+
                         </div>
 
                         {/* Checkout Steps */}

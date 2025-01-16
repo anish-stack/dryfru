@@ -22,7 +22,7 @@ const ReceiptComponent = () => {
 
   const findOrder = async () => {
     try {
-      const { data } = await axios.get(`https://www.api.dyfru.com/api/v1/my-recent-order/${orderIdInParams}`, {
+      const { data } = await axios.get(`http://localhost:7400/api/v1/my-recent-order/${orderIdInParams}`, {
         headers: {
           Authorization: `Bearer ${sessionStorage.getItem('token_login')}`,
         },
@@ -37,7 +37,7 @@ const ReceiptComponent = () => {
   const AddRatingOfOrder = async (rating) => {
     console.log(rating)
     try {
-      await axios.post(`https://www.api.dyfru.com/api/v1/order-proccessing/${orderIdInParams}`, {
+      await axios.post(`http://localhost:7400/api/v1/order-proccessing/${orderIdInParams}`, {
         OrderProcessRating: rating
       });
       // console.log(response.data)

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import axios from 'axios'
 const Input = ({ label, type, name, value, onChange, className = "", readonly = false, placeholder = '' }) => (
@@ -24,7 +24,7 @@ const CreateProduct = () => {
         product_description: "",
         isVarient: false,
         Varient: [
-            
+
         ],
         category: "",
         extra_description: "",
@@ -45,6 +45,7 @@ const CreateProduct = () => {
     const [success, setSuccess] = useState(false)
 
     const [isVariantOpen, setIsVariantOpen] = useState(true);
+  const [allCategory, setCategory] = useState([])
 
     const handleAddVarients = () => {
         setFormData((prevData) => ({
@@ -62,7 +63,21 @@ const CreateProduct = () => {
             ],
         }));
     };
-
+    const fetchCategoryData = async () => {
+        try {
+          const res = await axios.get('http://localhost:7400/api/v1/admin/category')
+          const data = res.data.categories
+    
+          console.log("categirr", res.data)
+          if (data) {
+            setCategory(data)
+          }
+    
+        } catch (error) {
+          console.log(error)
+          setCategory([])
+        }
+      }
     const handleRemoveVarients = (index) => {
         const updatedVarients = formData.Varient.filter((_, i) => i !== index);
         setFormData((prevData) => ({
@@ -155,7 +170,7 @@ const CreateProduct = () => {
 
 
         try {
-            const data = await axios.post('https://www.api.dyfru.com/api/v1/add-new-product', formDataObject, {
+            const data = await axios.post('http://localhost:7400/api/v1/add-new-product', formDataObject, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -184,7 +199,9 @@ const CreateProduct = () => {
         }
 
     };
-
+useEffect(()=>{
+    fetchCategoryData()
+},[])
 
     if (loading) {
         return (
@@ -239,13 +256,24 @@ const CreateProduct = () => {
                             value={formData.product_name}
                             onChange={handleInputChange}
                         />
-                        <Input
-                            label="Category"
-                            type="text"
-                            name="category"
-                            value={formData.category}
-                            onChange={handleInputChange}
-                        />
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Category
+                            </label>
+                            <select
+                                name="category"
+                                value={formData?.category || ''}
+                                onChange={handleInputChange}
+                                className="custom-select"
+                            >
+                                <option value="">Select Category</option>
+                                {allCategory?.map((category) => (
+                                    <option key={category._id} value={category._id}>
+                                        {category.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -338,7 +366,7 @@ const CreateProduct = () => {
                                 label="Stock"
                                 type="text"
                                 name="stock"
-                               
+
                                 value={formData.stock}
                                 onChange={handleInputChange}
                             />

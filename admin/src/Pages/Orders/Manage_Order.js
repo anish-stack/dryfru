@@ -22,7 +22,7 @@ const ManageOrder = () => {
   const fetchOrders = async (page) => {
     try {
       setLoading(true);
-      const response = await axios.get("https://www.api.dyfru.com/api/v1/admin/get-all-order", {
+      const response = await axios.get("http://localhost:7400/api/v1/admin/get-all-order", {
         params: { page, limit: 6 },
       });
       const { data, totalPages } = response.data;
@@ -44,10 +44,12 @@ const ManageOrder = () => {
   const handleStatusChange = async (orderId, status) => {
     try {
       setLoading(true);
-      await axios.put("https://www.api.dyfru.com/api/v1/admin/update-order-status", { orderId, status });
+      const data = await axios.post("http://localhost:7400/api/v1/admin/change-order-status", { orderId, status });
+      console.log(data)
       fetchOrders(currentPage);
     } catch (err) {
-      setError("Failed to update order status. Please try again later.");
+      console.log(err);
+      // setError("Failed to update order status. Please try again later.");
       setLoading(false);
     }
   };
@@ -56,13 +58,219 @@ const ManageOrder = () => {
     if (window.confirm("Are you sure you want to delete this order?")) {
       try {
         setLoading(true);
-        await axios.delete(`https://www.api.dyfru.com/api/v1/admin/delete-order/${orderId}`);
+        await axios.delete(`http://localhost:7400/api/v1/admin/delete-order/${orderId}`);
         fetchOrders(currentPage);
       } catch (err) {
         setError("Failed to delete order. Please try again later.");
         setLoading(false);
       }
     }
+  };
+
+  const handlePrintOrder = (order) => {
+    const printWindow = window.open("", "_blank", "width=800,height=600");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Order Details - ${order.orderId}</title>
+          <link rel="stylesheet" href="billStyles.css">
+        </head>
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.container {
+  width: 100%;
+  max-width: 800px;
+  margin: 20px auto;
+  background-color: #ffffff;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.header {
+  background-color: #4a90e2;
+  color: #ffffff;
+  padding: 20px;
+  text-align: center;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.order-info {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.order-info div {
+  flex: 1;
+}
+
+.order-info h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #4a90e2;
+}
+
+.status {
+  font-weight: bold;
+  color: #4caf50;
+}
+
+.customer-details, .order-items, .order-summary {
+  padding: 20px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.table th, .table td {
+  border: 1px solid #e0e0e0;
+  padding: 12px;
+  text-align: left;
+}
+
+.table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+  color: #4a90e2;
+}
+
+.table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.total {
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 20px;
+  text-align: right;
+  color: #4a90e2;
+}
+
+.footer {
+  margin-top: 10px;
+  padding: 20px;
+  background-color: #f4f4f4;
+  font-size: 14px;
+  color: #666;
+  border-top: 1px solid #e0e0e0;
+}
+
+.footer h3 {
+  color: #4a90e2;
+  margin-bottom: 5px;
+}
+
+.footer ul {
+  padding-left: 5px;
+  margin: 0;
+}
+
+.footer li {
+  margin-bottom: 5px;
+}
+
+@media print {
+  body {
+    background-color: #ffffff;
+  }
+  
+  .container {
+    box-shadow: none;
+  }
+}
+
+
+        </style>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>Order Invoice</h1>
+            </div>
+            
+            <div class="order-info">
+              <div>
+                <h2>Order Details</h2>
+                <p><strong>Order ID:</strong> ${order.orderId}</p>
+                <p><strong>Date:</strong> ${new Date(order.orderDate).toLocaleString()}</p>
+              </div>
+              <div>
+                <h2>Payment Info</h2>
+                <p><strong>Status:</strong> <span class="status">${order.status}</span></p>
+                <p><strong>Payment Type:</strong> ${order.paymentType}</p>
+              </div>
+            </div>
+  
+            <div class="customer-details">
+              <h2>Customer Details</h2>
+              <p><strong>Name:</strong> ${order?.userId.Name}</p>
+              <p><strong>Email:</strong> ${order?.userId.Email}</p>
+              <p><strong>Mobile Number:</strong> ${order?.userId.ContactNumber}</p>
+            </div>
+  
+            <div class="order-items">
+              <h2>Order Items</h2>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Item Name</th>
+                    <th>Quantity</th>
+                    <th>Price (₹)</th>
+                    <th>Total (₹)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${order.items.map(item => `
+                    <tr>
+                      <td>${item.name}</td>
+                      <td>${item.quantity}</td>
+                      <td>${item.price.toFixed(2)}</td>
+                      <td>${(item.price * item.quantity).toFixed(2)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+  
+            <div class="order-summary">
+              <div class="total">
+                <p>Total Paid: ₹${order.totalAmount.toFixed(2)}</p>
+              </div>
+            </div>
+  
+            <div class="footer">
+              <h3>Terms and Conditions</h3>
+              <ul>
+                <li>All sales are final. Returns are accepted within 30 days of purchase with the original receipt.</li>
+                <li>Shipping times may vary depending on location and availability.</li>
+                <li>Prices include all applicable taxes and fees.</li>
+              </ul>
+            </div>
+          </div>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
   };
 
   if (loading) {
@@ -95,22 +303,43 @@ const ManageOrder = () => {
           <h1 className="text-2xl font-bold text-gray-900">Manage Orders</h1>
         </header>
 
-        <div className="grid grid-cols-2 gap-4">
-          {orders.map((order) => (
-            <div key={order._id} className="bg-white shadow-sm rounded-lg p-4 border border-gray-200">
-              <div className="flex justify-between items-center mb-2">
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900">Order ID: {order.orderId}</h2>
-                  <span
-                    className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[order.status]}`}
-                  >
-                    {order.status}
-                  </span>
-                </div>
-                <div>
-                  <div className="mt-3">
+        <div className="overflow-x-auto bg-white shadow-sm rounded-lg">
+          <table className="min-w-full table-auto">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Order ID</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Status</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Total Amount</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Payment Type</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Order Date</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((order) => (
+                <tr key={order._id} className="border-b">
+                  <td className="px-4 py-2 text-sm text-gray-900">{order.orderId}</td>
+                  <td className="px-4 py-2 text-sm">
+                    <span
+                      className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[order.status]}`}
+                    >
+                      {order.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-900">Rs: {order.totalAmount.toFixed(2)}</td>
+                  <td className="px-4 py-2 text-sm text-gray-900">{order.paymentType}</td>
+                  <td className="px-4 py-2 text-sm text-gray-900">
+                    {new Date(order.orderDate).toLocaleString()}
+                  </td>
+                  <td className="px-4 py-2 text-sm">
+                    <button
+                      onClick={() => handlePrintOrder(order)}
+                      className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600"
+                    >
+                      Print
+                    </button>
                     <select
-                      className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="ml-2 px-3 py-2 text-sm bg-gray-50 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       onChange={(e) => {
                         const selectedValue = e.target.value;
                         if (selectedValue === "delete") {
@@ -134,38 +363,17 @@ const ManageOrder = () => {
                         Delete Order
                       </option>
                     </select>
-                  </div>
-
-                  <div className="mt-3">
-                    <select
-                      className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-
+                    <button
+                      onClick={() => window.location.href = `/order/${order?.orderId}`}
+                      className="px-4 ml-3 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600"
                     >
-                      <option value="" disabled selected>
-                        Select Order Actions
-                      </option>
-                      {["Print Order", "View Order", "View User"].map(
-                        (status) => (
-                          <option key={status} value={status}>
-                            {status}
-                          </option>
-                        )
-                      )}
-                      <option value="delete" className="text-red-600">
-                        Delete Order
-                      </option>
-                    </select>
-                  </div>
-                </div>
-
-              </div>
-              <div className="text-sm text-gray-600">
-                <p>Total Amount: <span className="font-medium">Rs :{order.totalAmount.toFixed(2)}</span></p>
-                <p>Payment Type: <span className="font-medium">{order.paymentType}</span></p>
-                <p>Order Date: <span className="font-medium">{new Date(order.orderDate).toLocaleString()}</span></p>
-              </div>
-            </div>
-          ))}
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
         <div className="mt-6 flex justify-between items-center">

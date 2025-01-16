@@ -1,24 +1,27 @@
 const crypto = require('crypto');
 const axios = require('axios');
 const Order = require('../models/Order.model')
+const Settings = require('../models/Setting');
+
 async function initiatePayment(req, res, order) {
     try {
         const { totalAmount } = req.body;
-
+        const SettingsFind = await Settings.findOne()
         const transactionId = crypto.randomBytes(9).toString('hex');
         const merchantUserId = crypto.randomBytes(12).toString('hex');
 
-        const merchantId = process.env.PHONEPE_MERCHANT_ID || 'TESTPGPAYCREDUAT'; // Ensure these are in your environment variables
-        const apiKey = process.env.PHONEPE_MERCHANT_KEY || '14d6df8a-75bf-4873-9adf-43bc1545094f';
+        const merchantId = process.env.PHONEPE_MERCHANT_ID || SettingsFind?.paymentGateway?.key;
+        const apiKey = process.env.PHONEPE_MERCHANT_KEY || SettingsFind?.paymentGateway?.secret;
+
 
         const data = {
             merchantId: merchantId,
             merchantTransactionId: transactionId,
             merchantUserId: merchantUserId,
             name: "User",
-            amount: totalAmount * 100, // Convert price to Paise
-            callbackUrl: 'https://www.api.dyfru.com/payment-failed',
-            redirectUrl: `https://www.api.dyfru.com/api/v1/verify-payment/${transactionId}`,
+            amount: totalAmount * 100,
+            callbackUrl: 'http://localhost:7400/payment-failed',
+            redirectUrl: `http://localhost:7400/api/v1/verify-payment/${transactionId}`,
             redirectMode: 'POST',
             paymentInstrument: {
                 type: 'PAY_PAGE',
@@ -55,9 +58,9 @@ async function initiatePayment(req, res, order) {
 
         // Make the Axios request
         const response = await axios.request(options);
-        console.log("response.data.data.orderId", response.data.data.merchantTransactionId)
+        // console.log("response.data.data.orderId", response.data.data.merchantTransactionId)
         const date = new Date()
-        console.log(date)
+        // console.log(date)
         if (response.status) {
             const findOrder = await Order.findById(order?._id)
             if (findOrder) {
@@ -70,7 +73,7 @@ async function initiatePayment(req, res, order) {
             }
             await findOrder.save();
         }
-        console.log(response.data.data.instrumentResponse.redirectInfo.url)
+        // console.log(response.data.data.instrumentResponse.redirectInfo.url)
         res.status(201).json({
             success: true,
             msg: "Payment initiated successfully",

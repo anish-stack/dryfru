@@ -1,10 +1,15 @@
 const express = require('express');
 const { RegisterUser, LogginUser, LogoutUser, PasswordChangeRequest, verifyOtpForSignIn, Resend_Otp, getAllUsers, findMe, addWhisList, getWishlist } = require('../controller/User.controller');
 const { protect } = require('../middleware/auth');
-const { createProduct, getAllProducts, deleteProductById, getProductById, updateProduct } = require('../controller/Product.controller');
+const { createProduct, getAllProducts, deleteProductById, getProductById, updateProduct, getProductsByCategory } = require('../controller/Product.controller');
 const multer = require("multer");
-const { createOrderOfProduct, ChangeOrderStatus, getAllOrder, getMyLastOrder, checkStatus, getOrderByOrderId, OrderProcessRating, getMyAllOrder } = require('../controller/Order_Controller');
+const { createOrderOfProduct, ChangeOrderStatus, getAllOrder, getMyLastOrder, checkStatus, getOrderByOrderId, OrderProcessRating, getMyAllOrder, getOrderByOrderIdAdmin, generateOrderReport, getRecentsOrders } = require('../controller/Order_Controller');
 const { addSettings, editSettings, getSettings } = require('../controller/Settings');
+const { createHeroPage, getHeroPage } = require('../controller/Hero.controller');
+const { createPage, getAllPages, getSinglePage, updatePage, deletePage, createAnnouncements, getAnnouncements, updateAnnouncement, deleteAnnouncement } = require('../controller/Pages.controller');
+const { createContact, getAllContacts, updateContact, deleteContact } = require('../controller/Contact.controller');
+const { createCoupon, updateCoupon, deleteCoupon, applyCoupon, getAllCoupons } = require('../controller/Coupon.controller');
+const { createCategory, getCategories, getCategoryById, updateCategory, deleteCategory } = require('../controller/Category.controller');
 const storage = multer.memoryStorage()
 
 const upload = multer({ storage });
@@ -23,9 +28,45 @@ router.post('/add-whishlist', protect, addWhisList);
 router.get('/wishlist', protect, getWishlist);
 router.get('/my-last-order', protect, getMyLastOrder);
 router.get('/my-recent-order/:orderId', protect, getOrderByOrderId);
+router.get('/recent-order/:orderId', getOrderByOrderIdAdmin);
 router.post('/order-proccessing/:orderid', OrderProcessRating);
-router.get('/my-all-order',protect, getMyAllOrder);
+router.get('/my-all-order', protect, getMyAllOrder);
+router.post('/support-request', createContact);
 
+
+
+//Admin reports routes
+router.post('/get-reports', generateOrderReport);
+router.get('/get-recent-orders', getRecentsOrders);
+
+//Admin annoncements routes
+router.post('/annoncement', createAnnouncements);
+router.get('/admin/annoncements', getAnnouncements);
+router.post('/admin/annoncement/:id', updateAnnouncement);
+router.delete('/admin/annoncement/:id', deleteAnnouncement);
+
+
+//Admin Coupons routes
+router.post('/add-coupon', createCoupon);
+router.post('/update-coupon/:code', updateCoupon);
+router.delete('/delete-coupon/:code', deleteCoupon);
+router.post('/apply-coupon', applyCoupon);
+router.get('/get-coupon', getAllCoupons);
+
+
+//Admin support routes
+router.get('/admin/support-request/all', getAllContacts);
+router.post('/admin/support/:id', updateContact);
+router.delete('/admin/support-delete/:id', deleteContact);
+
+
+//Admin category routes
+
+router.post('/admin/create/category', createCategory);
+router.get('/admin/category', getCategories);
+router.get('/admin/category/:id', getCategoryById);
+router.put('/admin/category/edit/:id', updateCategory);
+router.delete('/:id', deleteCategory)
 
 
 //Admin user routes
@@ -33,6 +74,20 @@ router.get('/my-all-order',protect, getMyAllOrder);
 router.get('/admin/get-users', getAllUsers);
 router.post('/admin/change-order-status', ChangeOrderStatus);
 router.get('/admin/get-all-order', getAllOrder);
+
+//Admin Settings routes
+router.post('/admin/create_and_update/hero_page', createHeroPage);
+router.get('/admin/get/hero_page', getHeroPage);
+
+
+//Admin pages
+
+router.post('/admin/page', createPage);
+router.get('/admin/pages', getAllPages);
+router.get('/admin/page/:slug', getSinglePage);
+router.put('/admin/page/:slug', updatePage);
+router.delete('/admin/page/:slug', deletePage);
+
 
 //Admin Settings routes
 
@@ -45,6 +100,7 @@ router.get('/admin/settings', getSettings);
 router.post('/add-new-product', upload.any(), createProduct);
 router.post('/update-product/:productId', upload.any(), updateProduct);
 router.get('/get-product', getAllProducts);
+router.get('/get-product/by-category', getProductsByCategory);
 router.get('/get-product/:id', getProductById);
 router.delete('/delete-product/:id', deleteProductById);
 

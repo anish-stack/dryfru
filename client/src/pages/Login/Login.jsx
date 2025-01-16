@@ -18,7 +18,7 @@ function Login() {
 
     setIsSubmitting(true);
     try {
-      const response = await axios.post('https://www.api.dyfru.com/api/v1/login', {
+      const response = await axios.post('http://localhost:7400/api/v1/login', {
         Email: email,
         Password: password,
       })

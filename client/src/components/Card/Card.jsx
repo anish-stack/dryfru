@@ -18,7 +18,7 @@ const Card = ({ product_name, tag, discount, ProductMainImage, price, isVarient,
     const [isInWishlist, setIsInWishlist] = useState(false);
 
     const add = (id) => {
-        dispatch(addToWishlist({ item: id }))
+        // dispatch(addToWishlist({ item: id }))
         dispatch(fetchWishlist())
     }
     useEffect(() => {
