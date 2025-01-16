@@ -758,7 +758,7 @@ exports.checkStatus = async (req, res) => {
                 await findOrder.save();
             }
 
-            const successRedirect = `http://localhost:3001/Receipt/order-confirmed?id=${merchantTransactionId}&success=true&data=${findOrder?.orderId}`;
+            const successRedirect = `https://dyfru.com/Receipt/order-confirmed?id=${merchantTransactionId}&success=true&data=${findOrder?.orderId}`;
             // Send email notification to customer and admin when order is confirmed
             const MailOptions = {
                 email: findOrder?.userId?.Email,
