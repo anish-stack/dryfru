@@ -126,7 +126,7 @@ const CheckOut = () => {
                 return;
             }
 
-            const response = await axios.post('http://localhost:7400/api/v1/apply-coupon', {
+            const response = await axios.post('https://api.dyfru.com/api/v1/apply-coupon', {
                 code: couponCode,
                 orderAmount: totalDetails.total
             });
@@ -150,7 +150,7 @@ const CheckOut = () => {
     // Fetch available coupons
     const fetchCoupons = async () => {
         try {
-            const response = await axios.get('http://localhost:7400/api/v1/get-coupon');
+            const response = await axios.get('https://api.dyfru.com/api/v1/get-coupon');
             setAllCoupons(response?.data?.data.filter(item => item.isActive));
         } catch (error) {
             console.error('Error fetching coupons:', error);
@@ -180,7 +180,7 @@ const CheckOut = () => {
             }
 
             const response = await axios.post(
-                'http://localhost:7400/api/v1/add-order',
+                'https://api.dyfru.com/api/v1/add-order',
                 orderData,
                 {
                     headers: {

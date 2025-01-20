@@ -20,8 +20,8 @@ async function initiatePayment(req, res, order) {
             merchantUserId: merchantUserId,
             name: "User",
             amount: totalAmount * 100,
-            callbackUrl: 'http://localhost:7400/payment-failed',
-            redirectUrl: `http://localhost:7400/api/v1/verify-payment/${transactionId}`,
+            callbackUrl: 'https://api.dyfru.com/payment-failed',
+            redirectUrl: `https://api.dyfru.com/api/v1/verify-payment/${transactionId}`,
             redirectMode: 'POST',
             paymentInstrument: {
                 type: 'PAY_PAGE',

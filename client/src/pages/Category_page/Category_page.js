@@ -17,7 +17,7 @@ const Category_page = () => {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get(`http://localhost:7400/api/v1/get-product/by-category?id=${id}`)
+            const response = await axios.get(`https://api.dyfru.com/api/v1/get-product/by-category?id=${id}`)
         
             const productData = response?.data?.data || []
             if (productData.length === 0) {

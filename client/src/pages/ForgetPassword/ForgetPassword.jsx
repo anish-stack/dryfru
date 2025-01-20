@@ -34,7 +34,7 @@ const ForgetPassword = () => {
         setSuccessMessage('');
 
         try {
-            const response = await axios.post('http://localhost:7400/api/v1/Password-Change-Request', formData);
+            const response = await axios.post('https://api.dyfru.com/api/v1/Password-Change-Request', formData);
             console.log('API Response:', response.data);
             setSuccessMessage(response.data.msg);
             setTimeout(()=>{

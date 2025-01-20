@@ -18,7 +18,7 @@ const Product_sub = () => {
     const fetchData = async () => {
       console.log("i am sub dfdd ")
         try {
-            const response = await axios.get(`http://localhost:7400/api/v1/get-product/by-sub-category/${id}`)
+            const response = await axios.get(`https://api.dyfru.com/api/v1/get-product/by-sub-category/${id}`)
             console.log("i am sub ",response.data)
             const productData = response?.data?.data || []
             if (productData.length === 0) {

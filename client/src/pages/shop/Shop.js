@@ -19,7 +19,7 @@ const Shop = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:7400/api/v1/get-product');
+      const response = await axios.get('https://api.dyfru.com/api/v1/get-product');
       const productData = response?.data?.products || [];
       setProducts(productData);
       setFilteredProducts(productData);
