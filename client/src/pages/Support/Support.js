@@ -31,7 +31,7 @@ function Support() {
         Phone: formData.phone,
         Message: formData.message
       }
-      const response = await axios.post('https://api.dyfru.com/api/v1/support-request', data);
+      const response = await axios.post('http://localhost:7400/api/v1/support-request', data);
       console.log(response);
 
       if (response.status === 201) {

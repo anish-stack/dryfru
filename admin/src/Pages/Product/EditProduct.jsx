@@ -19,6 +19,23 @@ const Input = ({ label, type, name, value, onChange, className = "", readonly = 
     />
   </div>
 );
+const TextArea = ({ label, name, value, onChange, className = "", readonly = false, placeholder = '' }) => (
+  <div className={className}>
+    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+      {label}
+    </label>
+    <textarea
+      rows={4}
+      cols={5}
+      placeholder={placeholder}
+      readOnly={readonly}
+      name={name}
+      value={value}
+      onChange={onChange}
+      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+    />
+  </div>
+);
 
 const EditProduct = () => {
   const [formData, setFormData] = useState({
@@ -28,6 +45,7 @@ const EditProduct = () => {
     Varient: [
 
     ],
+    sub_category: "",
     category: "",
     extra_description: "",
     tag: "",
@@ -53,6 +71,8 @@ const EditProduct = () => {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [allCategory, setCategory] = useState([])
+  const [selectedSubCategories, setSelectedSubCategories] = useState([])
+  const [sub, setSub] = useState('')
 
   const { id } = useParams()
   const [isVariantOpen, setIsVariantOpen] = useState(true);
@@ -75,14 +95,20 @@ const EditProduct = () => {
   };
   const fetchCategoryData = async () => {
     try {
-      const res = await axios.get('https://api.dyfru.com/api/v1/admin/category')
+      const res = await axios.get('http://localhost:7400/api/v1/admin/category')
       const data = res.data.categories
 
-      console.log("categirr", res.data)
+      console.log("sub", sub)
       if (data) {
         setCategory(data)
       }
-
+      const category = data.find((c) => c._id === sub);
+      console.log("categorycategory", allCategory)
+      if (category) {
+        setSelectedSubCategories(category.SubCategory);
+      } else {
+        setSelectedSubCategories([]);
+      }
     } catch (error) {
       console.log(error)
       setCategory([])
@@ -121,6 +147,15 @@ const EditProduct = () => {
 
       return updatedData;
     });
+    if (name === 'category') {
+      const selectedCategory = value;
+      const category = allCategory.find((c) => c._id === selectedCategory);
+      if (category) {
+        setSelectedSubCategories(category.SubCategory);
+      } else {
+        setSelectedSubCategories([]);
+      }
+    }
   };
 
   const handleChange = (e, index) => {
@@ -162,13 +197,21 @@ const EditProduct = () => {
 
   const handleFetchProductDetails = async () => {
     try {
-      const { data } = await axios.get(`https://api.dyfru.com/api/v1/get-product/${id}`)
+      const { data } = await axios.get(`http://localhost:7400/api/v1/get-product/${id}`)
 
       const productData = data?.data
+      console.log("productData", productData)
       setFormData((prevData) => ({
         ...prevData,
+        sub_category: productData?.sub_category,
         category: productData?.category
       }))
+
+      if (productData.sub_category) {
+        setSub(productData?.sub_category)
+      } else {
+        console.log("Error in sub")
+      }
       setFormData(productData)
       if (productData) {
         setImages({
@@ -198,12 +241,15 @@ const EditProduct = () => {
   useEffect(() => {
     fetchCategoryData()
     handleFetchProductDetails()
+    setTimeout(() => {
+      console.log(formData)
+    }, 3000)
   }, [id])
 
   const handleSubmit = async () => {
     setLoading(true);
     const formDataObject = new FormData();
-
+    console.log(formData)
     try {
       // Safely iterate over formData
       Object.entries(formData).forEach(([key, value]) => {
@@ -227,7 +273,7 @@ const EditProduct = () => {
 
       // Send the form data via Axios
       const { data } = await axios.post(
-        `https://api.dyfru.com/api/v1/update-product/${id}`,
+        `http://localhost:7400/api/v1/update-product/${id}`,
         formDataObject,
         {
           headers: {
@@ -236,7 +282,7 @@ const EditProduct = () => {
         }
       );
 
-      console.log(data);
+
 
       if (data.success) {
         setSuccess(true);
@@ -255,7 +301,7 @@ const EditProduct = () => {
         setError('');
         setLoading(false);
       }, 4000);
-      window.location.reload()
+      // window.location.reload()
     } catch (error) {
       setSuccess(false);
       setError(error.response?.data?.message || "An error occurred. Please try again.");
@@ -299,7 +345,7 @@ const EditProduct = () => {
 
         <div className="space-y-6">
           {/* Basic Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Input
               label="Product Name"
               type="text"
@@ -325,20 +371,37 @@ const EditProduct = () => {
                 ))}
               </select>
             </div>
-
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Sub Category
+              </label>
+              <select
+                name="sub_category"
+                value={formData?.sub_category || ''}
+                onChange={handleInputChange}
+                className="custom-select"
+              >
+                <option value="">Select Sub Category</option>
+                {selectedSubCategories?.map((category) => (
+                  <option key={category._id} value={category._id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Input
+            <TextArea
               label="Product Description"
-              type="text"
+        
               name="product_description"
               value={formData?.product_description}
               onChange={handleInputChange}
             />
-            <Input
+            <TextArea
               label="Extra Description"
-              type="text"
+           
               name="extra_description"
               value={formData?.extra_description}
               onChange={handleInputChange}

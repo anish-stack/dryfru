@@ -42,6 +42,7 @@ exports.createProduct = async (req, res) => {
             stock,
             Varient,
             category,
+            sub_category,
             extra_description,
             tag,
             isShowOnHomeScreen
@@ -67,6 +68,7 @@ exports.createProduct = async (req, res) => {
             category,
             extra_description,
             tag,
+            sub_category,
             price,
             discount,
             afterDiscountPrice,
@@ -87,7 +89,7 @@ exports.createProduct = async (req, res) => {
         res.status(201).json({
             success: true,
             message: "Product created successfully",
-            product: product, // Return the created product data for confirmation
+            product: product,
         });
     } catch (error) {
         console.error("Error creating product:", error);
@@ -128,11 +130,36 @@ exports.getProductsByCategory = async (req, res) => {
         const products = await ProductModel.find({ category: req.query.id }).sort({ createdAt: -1 }).populate('category');
         res.status(200).json({
             success: true,
-            count:products.length,
+            count: products.length,
             message: "Products fetched successfully",
-           data: products,
+            data: products,
         });
     } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Error fetching products",
+            error: error.message,
+        });
+    }
+};
+exports.getProductsBySubCategory = async (req, res) => {
+    try {
+        console.log("sun hshsh",req.params.id)
+        if (!req.params.id) {
+            return res.status(400).json({
+                success: false,
+                message: "Category ID is required",
+            });
+        }
+        const products = await ProductModel.find({ sub_category: req.params.id }).sort({ createdAt: -1 }).populate('category');
+        res.status(200).json({
+            success: true,
+            count: products.length,
+            message: "Products fetched successfully",
+            data: products,
+        });
+    } catch (error) {
+        console.log(error)
         res.status(500).json({
             success: false,
             message: "Error fetching products",
@@ -169,6 +196,8 @@ exports.getProductById = async (req, res) => {
     }
 };
 
+
+
 exports.deleteProductById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -203,6 +232,7 @@ exports.updateProduct = async (req, res) => {
             product_description,
             isVarient,
             price,
+            sub_category,
             discount,
             afterDiscountPrice,
             stock,
@@ -223,6 +253,7 @@ exports.updateProduct = async (req, res) => {
         if (category !== undefined) updateFields.category = category;
         if (extra_description !== undefined) updateFields.extra_description = extra_description;
         if (tag !== undefined) updateFields.tag = tag;
+        if (sub_category !== undefined) updateFields.sub_category = sub_category;
 
         if (isVarient !== undefined) {
             updateFields.isVarient = JSON.parse(isVarient);

@@ -1,7 +1,7 @@
 const express = require('express');
 const { RegisterUser, LogginUser, LogoutUser, PasswordChangeRequest, verifyOtpForSignIn, Resend_Otp, getAllUsers, findMe, addWhisList, getWishlist } = require('../controller/User.controller');
 const { protect } = require('../middleware/auth');
-const { createProduct, getAllProducts, deleteProductById, getProductById, updateProduct, getProductsByCategory } = require('../controller/Product.controller');
+const { createProduct, getAllProducts, deleteProductById, getProductById, updateProduct, getProductsByCategory, getProductsBySubCategory } = require('../controller/Product.controller');
 const multer = require("multer");
 const { createOrderOfProduct, ChangeOrderStatus, getAllOrder, getMyLastOrder, checkStatus, getOrderByOrderId, OrderProcessRating, getMyAllOrder, getOrderByOrderIdAdmin, generateOrderReport, getRecentsOrders } = require('../controller/Order_Controller');
 const { addSettings, editSettings, getSettings } = require('../controller/Settings');
@@ -9,7 +9,7 @@ const { createHeroPage, getHeroPage } = require('../controller/Hero.controller')
 const { createPage, getAllPages, getSinglePage, updatePage, deletePage, createAnnouncements, getAnnouncements, updateAnnouncement, deleteAnnouncement } = require('../controller/Pages.controller');
 const { createContact, getAllContacts, updateContact, deleteContact } = require('../controller/Contact.controller');
 const { createCoupon, updateCoupon, deleteCoupon, applyCoupon, getAllCoupons } = require('../controller/Coupon.controller');
-const { createCategory, getCategories, getCategoryById, updateCategory, deleteCategory } = require('../controller/Category.controller');
+const { createCategory, getCategories, getCategoryById, updateCategory, deleteCategory, addSubcategory, UpdateSubcategory, deleteSubcategory, getSubcategoriesByCategory } = require('../controller/Category.controller');
 const storage = multer.memoryStorage()
 
 const upload = multer({ storage });
@@ -66,7 +66,12 @@ router.post('/admin/create/category', createCategory);
 router.get('/admin/category', getCategories);
 router.get('/admin/category/:id', getCategoryById);
 router.put('/admin/category/edit/:id', updateCategory);
-router.delete('/:id', deleteCategory)
+router.delete('/admin/category-del/:id', deleteCategory)
+//Admin sub  category routes
+router.post('/admin/create/sub-category/:id', addSubcategory);
+router.delete('/admin/sub-category/delete/:id', deleteSubcategory);
+router.get('/admin/sub-category/:categoryId', getSubcategoriesByCategory);
+router.put('/admin/sub-category/edit/:id', UpdateSubcategory);
 
 
 //Admin user routes
@@ -102,6 +107,7 @@ router.post('/update-product/:productId', upload.any(), updateProduct);
 router.get('/get-product', getAllProducts);
 router.get('/get-product/by-category', getProductsByCategory);
 router.get('/get-product/:id', getProductById);
+router.get('/get-product/by-sub-category/:id', getProductsBySubCategory);
 router.delete('/delete-product/:id', deleteProductById);
 
 // Order Routes

@@ -19,6 +19,7 @@ import Coupon from './Pages/Coupons/Coupon'
 import { AuthProvider } from './context/AuthContext'
 import Login from './Pages/Auth/Login'
 import { ProtectedRoute } from './context/ProtectedRoute'
+import Categories from './Pages/Categories/Categories'
 
 
 
@@ -50,6 +51,11 @@ function App() {
             <Route path="hero-section" element={<Hero />} />
             <Route path="pages/:page" element={<Pages />} />
             <Route path="announcements" element={<Announcements />} />
+
+
+            <Route path="Categories" element={<Categories />} />
+
+
             <Route path="coupons" element={<Coupon />} />
             <Route path="reports" element={<Reports />} />
             <Route path="support" element={<Support />} />

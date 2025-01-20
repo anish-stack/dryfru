@@ -17,7 +17,7 @@ const Maintenance = () => {
         <div className="bg-white rounded-2xl  p-8 md:p-12 text-center mb-8">
           <div className="flex justify-center mb-6">
             <div className="relative">
-              <Wrench className="w-16 h-16 text-blue-500 animate-spin-slow" />
+           
               <div className="absolute -top-2 -right-2">
                 <AlertCircle className="w-6 h-6 text-yellow-500" />
               </div>

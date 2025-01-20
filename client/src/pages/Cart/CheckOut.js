@@ -24,7 +24,7 @@ const CheckOut = () => {
     const [paymentMethod, setPaymentMethod] = useState('ONLINE');
     const [lastUsedAddress, setLastUsedAddress] = useState(null);
     const [loading, setLoading] = useState(true);
-    
+
     const [error, setError] = useState(null);
     const [couponCode, setCouponCode] = useState('');
     const [orderNote, setOrderNote] = useState('');
@@ -45,22 +45,41 @@ const CheckOut = () => {
     // Calculate order totals
     const calculateTotal = () => {
         const subtotal = cart.reduce((total, item) => total + (item.price_after_discount * item.Qunatity), 0);
+
         const shipping = settings?.shippingEnabled
             ? (subtotal >= settings?.freeShippingThreshold ? 0 : settings?.shippingCost)
             : 0;
+
         const tax = settings?.isTaxEnables
             ? Math.round(subtotal * (settings?.taxRate / 100))
             : 0;
+
+        // Total before discount
+        let total = subtotal + shipping + tax;
+
+        if (paymentMethod === 'ONLINE') {
+            const discountAmount = total * 0.05;
+            total -= discountAmount;
+            return {
+                subtotal,
+                shipping,
+                tax,
+                total,
+                discount: 5,
+                discountAmount
+            };
+        }
 
         return {
             subtotal,
             shipping,
             tax,
-            total: subtotal + shipping + tax,
+            total,
             discount: 0,
             discountAmount: 0
         };
     };
+
 
     const [totalDetails, setTotalDetails] = useState(calculateTotal());
 
@@ -88,7 +107,7 @@ const CheckOut = () => {
     // Update totals when cart or settings change
     useEffect(() => {
         setTotalDetails(calculateTotal());
-    }, [cart, settings]);
+    }, [paymentMethod, cart, settings]);
 
     // Handle coupon application
     const handleApplyCoupon = async () => {
@@ -107,7 +126,7 @@ const CheckOut = () => {
                 return;
             }
 
-            const response = await axios.post('https://api.dyfru.com/api/v1/apply-coupon', {
+            const response = await axios.post('http://localhost:7400/api/v1/apply-coupon', {
                 code: couponCode,
                 orderAmount: totalDetails.total
             });
@@ -131,7 +150,7 @@ const CheckOut = () => {
     // Fetch available coupons
     const fetchCoupons = async () => {
         try {
-            const response = await axios.get('https://api.dyfru.com/api/v1/get-coupon');
+            const response = await axios.get('http://localhost:7400/api/v1/get-coupon');
             setAllCoupons(response?.data?.data.filter(item => item.isActive));
         } catch (error) {
             console.error('Error fetching coupons:', error);
@@ -152,7 +171,7 @@ const CheckOut = () => {
             status: 'pending',
             orderNote
         };
-setLoading(true)
+        setLoading(true)
         try {
             const token = sessionStorage.getItem('token_login');
             if (!token) {
@@ -161,7 +180,7 @@ setLoading(true)
             }
 
             const response = await axios.post(
-                'https://api.dyfru.com/api/v1/add-order',
+                'http://localhost:7400/api/v1/add-order',
                 orderData,
                 {
                     headers: {
@@ -176,10 +195,10 @@ setLoading(true)
                 window.location.href = response.data.url;
             } else {
                 // Redirect to order success page 
-                setTimeout(()=>{
+                setTimeout(() => {
 
                     window.location.href = `/Receipt/order-confirmed?id=${response.data.order?._id}&success=true&data=${response.data.order?.orderId}`;
-                },2000)
+                }, 2000)
             }
             setLoading(false)
 
@@ -188,6 +207,8 @@ setLoading(true)
             setError('Failed to place order. Please try again.');
         }
     };
+
+
 
     if (loading) {
         return (
@@ -330,17 +351,26 @@ setLoading(true)
 
                             <div className="space-y-4">
                                 {settings?.onlinePaymentAvailable && (
-                                    <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:border-green-500 transition-colors">
+                                    <label className="flex items-center p-6 border rounded-lg cursor-pointer hover:border-green-500 transition-colors shadow-md">
                                         <input
                                             type="radio"
                                             name="payment"
                                             value="ONLINE"
                                             checked={paymentMethod === 'ONLINE'}
                                             onChange={(e) => setPaymentMethod(e.target.value)}
-                                            className="h-4 w-4 text-green-600 focus:ring-green-500"
+                                            className="h-5 w-5 text-green-600 focus:ring-green-500 transition-colors"
                                         />
-                                        <span className="ml-3">Online Payment</span>
+                                        <div className="ml-4 flex flex-col">
+                                            <span className="text-lg font-semibold text-gray-800">Online Payment</span>
+                                            <span className="text-sm text-gray-600 mt-1">Do Online Payment And Get a 5% Off On Order Value</span>
+                                            <div className="mt-2 flex items-center">
+                                                <span className="inline-flex items-center px-2 py-1 text-xs font-semibold text-white bg-green-600 rounded-full">
+                                                    Exclusive Offer
+                                                </span>
+                                            </div>
+                                        </div>
                                     </label>
+
                                 )}
 
                                 {settings?.codAvailable && (
@@ -446,6 +476,12 @@ setLoading(true)
                                         <span>-₹{totalDetails.discountAmount.toFixed(2)}</span>
                                     </div>
                                 )}
+                                {paymentMethod === 'ONLINE' && (
+                                    <div className="flex justify-between text-green-600">
+                                        <span>5% Discount Applied for Online Payment. Thank you for choosing us!</span>
+                                    </div>
+                                )}
+
 
                                 <div className="border-t pt-4">
                                     <div className="flex justify-between font-bold text-lg">
@@ -454,6 +490,7 @@ setLoading(true)
                                     </div>
                                 </div>
                             </div>
+
 
                             {/* Place Order Button */}
                             <button

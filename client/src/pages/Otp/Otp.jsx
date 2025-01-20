@@ -50,7 +50,7 @@ function Otp() {
       return;
     }
     try {
-      const data = await axios.post('https://api.dyfru.com/api/v1/verify-otp', {
+      const data = await axios.post('http://localhost:7400/api/v1/verify-otp', {
         email,
         otp,
         type: type
@@ -80,7 +80,7 @@ function Otp() {
   const handleResend = async (e) => {
     e.preventDefault();
     try {
-      const data = await axios.post('https://api.dyfru.com/api/v1/resend-otp', {
+      const data = await axios.post('http://localhost:7400/api/v1/resend-otp', {
         email,
         type: type
       })

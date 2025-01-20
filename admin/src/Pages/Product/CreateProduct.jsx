@@ -27,6 +27,7 @@ const CreateProduct = () => {
 
         ],
         category: "",
+        sub_category: "",
         extra_description: "",
         tag: "",
         isShowOnHomeScreen: false,
@@ -45,7 +46,8 @@ const CreateProduct = () => {
     const [success, setSuccess] = useState(false)
 
     const [isVariantOpen, setIsVariantOpen] = useState(true);
-  const [allCategory, setCategory] = useState([])
+    const [allCategory, setCategory] = useState([])
+    const [selectedSubCategories, setSelectedSubCategories] = useState([])
 
     const handleAddVarients = () => {
         setFormData((prevData) => ({
@@ -65,19 +67,19 @@ const CreateProduct = () => {
     };
     const fetchCategoryData = async () => {
         try {
-          const res = await axios.get('https://api.dyfru.com/api/v1/admin/category')
-          const data = res.data.categories
-    
-          console.log("categirr", res.data)
-          if (data) {
-            setCategory(data)
-          }
-    
+            const res = await axios.get('http://localhost:7400/api/v1/admin/category')
+            const data = res.data.categories
+
+            console.log("categirr", res.data)
+            if (data) {
+                setCategory(data)
+            }
+
         } catch (error) {
-          console.log(error)
-          setCategory([])
+            console.log(error)
+            setCategory([])
         }
-      }
+    }
     const handleRemoveVarients = (index) => {
         const updatedVarients = formData.Varient.filter((_, i) => i !== index);
         setFormData((prevData) => ({
@@ -110,6 +112,18 @@ const CreateProduct = () => {
 
             return updatedData;
         });
+
+        if (name === 'category') {
+            const selectedCategory = value;
+            const category = allCategory.find((c) => c._id === selectedCategory);
+            if (category) {
+                setSelectedSubCategories(category.SubCategory);
+            } else {
+                setSelectedSubCategories([]);
+            }
+        }
+
+
     };
 
     const handleChange = (e, index) => {
@@ -170,7 +184,7 @@ const CreateProduct = () => {
 
 
         try {
-            const data = await axios.post('https://api.dyfru.com/api/v1/add-new-product', formDataObject, {
+            const data = await axios.post('http://localhost:7400/api/v1/add-new-product', formDataObject, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -199,9 +213,9 @@ const CreateProduct = () => {
         }
 
     };
-useEffect(()=>{
-    fetchCategoryData()
-},[])
+    useEffect(() => {
+        fetchCategoryData()
+    }, [])
 
     if (loading) {
         return (
@@ -248,7 +262,7 @@ useEffect(()=>{
 
                 <div className="space-y-6">
                     {/* Basic Information */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <Input
                             label="Product Name"
                             type="text"
@@ -274,7 +288,26 @@ useEffect(()=>{
                                 ))}
                             </select>
                         </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Sub Category
+                            </label>
+                            <select
+                                name="sub_category"
+                                value={formData?.sub_category || ''}
+                                onChange={handleInputChange}
+                                className="custom-select"
+                            >
+                                <option value="">Select Sub Category</option>
+                                {selectedSubCategories?.map((category) => (
+                                    <option key={category._id} value={category._id}>
+                                        {category.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
+
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <Input

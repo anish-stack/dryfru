@@ -11,14 +11,15 @@ import 'swiper/css/pagination';
 import { FreeMode, Pagination, Autoplay } from 'swiper/modules';
 import Button from '../../components/Button/Button';
 
-const Category_page = () => {
+const Product_sub = () => {
     const { id, category } = useParams()
     const [data, setData] = useState([])
-
+  console.log(id)
     const fetchData = async () => {
+      console.log("i am sub dfdd ")
         try {
-            const response = await axios.get(`http://localhost:7400/api/v1/get-product/by-category?id=${id}`)
-        
+            const response = await axios.get(`http://localhost:7400/api/v1/get-product/by-sub-category/${id}`)
+            console.log("i am sub ",response.data)
             const productData = response?.data?.data || []
             if (productData.length === 0) {
                 setData([])
@@ -39,7 +40,7 @@ const Category_page = () => {
         <div className="flex z-[99] flex-col items-center justify-center py-12 px-4 text-center">
             <PackageSearch className="w-16 h-16 text-gray-400 mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                No Products Found in {category}
+                No Products Found in Sub {category}
             </h3>
             <p className="text-gray-600 mb-6 max-w-md">
                 We're sorry, but it looks like this category is empty right now. 
@@ -143,4 +144,4 @@ const Category_page = () => {
     )
 }
 
-export default Category_page
+export default Product_sub

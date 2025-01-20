@@ -18,6 +18,7 @@ import Policy from './pages/Policy/Policy';
 import Support from './pages/Support/Support';
 import Category_page from './pages/Category_page/Category_page';
 import BottomNavigation from './components/Header/BottomNavigation';
+import Product_sub from './pages/Category_page/Product_Sub';
 
 function App() {
 
@@ -44,6 +45,7 @@ function App() {
         <Route path='/support' element={<Support />} />
         <Route path='/profile/dashboard' element={<Dashboard />} />
         <Route path='/Page/details/:id/:category' element={<Category_page />} />
+        <Route path='/Page/details/sub/:id/:category' element={<Product_sub />} />
         <Route path='/login' element={<Login />} />
         <Route path='/register' element={<Register />} />
         <Route path='/forgetpassword' element={<ForgetPassword />} />

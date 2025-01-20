@@ -20,7 +20,7 @@ const AllUsers = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('https://api.dyfru.com/api/v1/admin/get-users');
+      const response = await axios.get('http://localhost:7400/api/v1/admin/get-users');
       setUsers(response.data.data);
     } catch (error) {
       console.error('Error fetching users:', error);

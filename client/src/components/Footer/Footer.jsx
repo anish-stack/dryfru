@@ -9,6 +9,7 @@ const Footer = () => {
 
   const quickLinks = [
     { name: 'Login', href: '/Login' },
+    { name: 'About', href: '/about' },
     { name: 'Shop', href: '/shop' },
     { name: 'support', href: '/support' },
     { name: 'Cart', href: '/Cart' }
@@ -32,14 +33,14 @@ const Footer = () => {
     { icon: Instagram, url: settings?.socialMediaLinks?.instagram },
     { icon: Twitter, url: settings?.socialMediaLinks?.twitter },
     { icon: Linkedin, url: settings?.socialMediaLinks?.linkedin },
-    { icon: 'YouTubeIcon', url: settings?.socialMediaLinks?.youtube }, // Add YouTube icon
+    { icon: YoutubeIcon, url: settings?.socialMediaLinks?.youtube || 'sss' }, // Add YouTube icon
   ];
   useEffect(() => {
     const fetchPages = async () => {
       const dataSetting = await findSettings()
       setSettings(dataSetting)
       try {
-        const { data } = await axios.get('https://api.dyfru.com/api/v1/admin/pages')
+        const { data } = await axios.get('http://localhost:7400/api/v1/admin/pages')
         if (data) {
           setPages(data.pages)
         }
@@ -81,7 +82,7 @@ const Footer = () => {
                 </div>
                 <span className=' text-white'>{settings?.contactNumber}</span>
               </a>
-              <a href={`mailto:${settings?.supportEmail}`} className="flex items-center gap-3 text-gray-600 hover:text-amber-600 transition-colors group">
+              <a href={`mailTo:${settings?.supportEmail}`} className="flex items-center gap-3 text-gray-600 hover:text-amber-600 transition-colors group">
                 <div className="p-2 bg-amber-100 rounded-lg group-hover:bg-amber-200 transition-colors">
                   <Mail className="h-4 w-4 text-amber-600" strokeWidth={1.5} />
                 </div>
@@ -175,10 +176,8 @@ const Footer = () => {
 
         {/* Bottom Footer */}
         <div className="mt-16 pt-8 border-t border-amber-200">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-white">
-              © {new Date().getFullYear()} Dryfru. All rights reserved.
-            </p>
+          <div className="flex flex-col md:flex-row justify-center items-center gap-4">
+           
 
 
             <div className="flex items-center gap-3">
@@ -192,16 +191,18 @@ const Footer = () => {
                     className="p-2 bg-white rounded-lg hover:bg-amber-50 border border-amber-100 hover:border-amber-200 transition-colors group"
                   >
 
-                    {social.icon === 'YouTubeIcon' ? (
-                      <YoutubeIcon className="h-5 w-5 text-amber-600 group-hover:text-amber-700" strokeWidth={1.5} />
-                    ) : (
                       <social.icon className="h-5 w-5 text-amber-600 group-hover:text-amber-700" strokeWidth={1.5} />
-                    )}
+                   
                   </a>
                 ) : null
               ))}
+              
             </div>
+
           </div>
+          <p className="text-sm text-center mt-4 text-white">
+              © {new Date().getFullYear()} Dryfru. All rights reserved.
+            </p>
         </div>
       </div>
     </footer>

@@ -20,7 +20,7 @@ const Policy = () => {
             try {
                 setLoading(true);
                 const response = await axios.get(
-                    `https://api.dyfru.com/api/v1/admin/page/${page}`
+                    `http://localhost:7400/api/v1/admin/page/${page}`
                 );
                 setData(response.data.page);
             } catch (error) {

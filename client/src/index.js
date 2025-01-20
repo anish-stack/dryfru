@@ -11,6 +11,7 @@ import store from './store/Store';
 import { Toaster } from 'react-hot-toast';
 import { findSettings } from './utils/Api';
 import Maintenance from './Maintenance';
+import Loader from './components/Loader/Loader';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -38,10 +39,7 @@ function AppWithMaintenance() {
   if (isLoading) {
     // Display loader while settings are being fetched
     return (
-      <div className="loader-container">
-        <div className="loader"></div>
-        <p>Loading...</p>
-      </div>
+      <Loader/>
     );
   }
 

@@ -17,7 +17,7 @@ function ProductPage() {
 
   const handleFetchProduct = async () => {
     try {
-      const { data } = await axios.get(`https://api.dyfru.com/api/v1/get-product/${_id}`)
+      const { data } = await axios.get(`http://localhost:7400/api/v1/get-product/${_id}`)
       setProduct(data.data);
       setMainImage(data.data?.ProductMainImage?.url);
     } catch (error) {

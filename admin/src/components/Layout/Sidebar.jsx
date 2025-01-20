@@ -15,17 +15,19 @@ import {
   LogOut,
   ChevronDown,
   Plus,
-  Layers
+  Layers,
+  PackageCheck,
+  PackageOpenIcon
 } from 'lucide-react';
 
 const Sidebar = ({ isSidebarOpen, onLogout }) => {
   const [expandedMenus, setExpandedMenus] = React.useState({});
 
   const menuItems = [
-    { 
-      title: 'Dashboard', 
-      icon: LayoutDashboard, 
-      path: '/' 
+    {
+      title: 'Dashboard',
+      icon: LayoutDashboard,
+      path: '/'
     },
     {
       title: 'Products',
@@ -35,25 +37,30 @@ const Sidebar = ({ isSidebarOpen, onLogout }) => {
         { title: 'Manage Products', path: '/products/manage', icon: Layers }
       ]
     },
+    {
+      title: 'Categories',
+      icon: PackageOpenIcon,
+      path: '/Categories'
+    },
     // { 
     //   title: 'Banners', 
     //   icon: Image, 
     //   path: '/banners' 
     // },
-    { 
-      title: 'Users', 
-      icon: Users, 
-      path: '/users' 
+    {
+      title: 'Users',
+      icon: Users,
+      path: '/users'
     },
-    { 
-      title: 'Orders', 
-      icon: ShoppingCart, 
-      path: '/orders' 
+    {
+      title: 'Orders',
+      icon: ShoppingCart,
+      path: '/orders'
     },
-    { 
-      title: 'Reports', 
-      icon: BarChart3, 
-      path: '/reports' 
+    {
+      title: 'Reports',
+      icon: BarChart3,
+      path: '/reports'
     },
     {
       title: 'Pages',
@@ -64,25 +71,25 @@ const Sidebar = ({ isSidebarOpen, onLogout }) => {
         { title: 'Terms & Conditions', path: '/pages/Term-And-Conditions' }
       ]
     },
-    { 
-      title: 'Settings', 
-      icon: Settings, 
-      path: '/settings' 
+    {
+      title: 'Settings',
+      icon: Settings,
+      path: '/settings'
     },
-    { 
-      title: 'Announcements', 
-      icon: Bell, 
-      path: '/Announcements' 
+    {
+      title: 'Announcements',
+      icon: Bell,
+      path: '/Announcements'
     },
-    { 
-      title: 'Coupons', 
-      icon: PercentDiamond, 
-      path: '/Coupons' 
+    {
+      title: 'Coupons',
+      icon: PercentDiamond,
+      path: '/Coupons'
     },
-    { 
-      title: 'Support', 
-      icon: HelpCircle, 
-      path: '/support' 
+    {
+      title: 'Support',
+      icon: HelpCircle,
+      path: '/support'
     }
   ];
 
@@ -95,7 +102,7 @@ const Sidebar = ({ isSidebarOpen, onLogout }) => {
 
   const renderMenuItem = (item) => {
     const Icon = item.icon;
-    
+
     if (item.submenu) {
       return (
         <div key={item.title} className="relative">
@@ -121,8 +128,8 @@ const Sidebar = ({ isSidebarOpen, onLogout }) => {
                   to={subItem.path}
                   className={({ isActive }) =>
                     `flex items-center px-3 py-2 text-sm rounded-lg transition-colors
-                    ${isActive 
-                      ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/50' 
+                    ${isActive
+                      ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/50'
                       : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`
                   }
                 >
@@ -142,8 +149,8 @@ const Sidebar = ({ isSidebarOpen, onLogout }) => {
         to={item.path}
         className={({ isActive }) =>
           `flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors
-          ${isActive 
-            ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/50' 
+          ${isActive
+            ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/50'
             : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`
         }
       >
@@ -155,15 +162,14 @@ const Sidebar = ({ isSidebarOpen, onLogout }) => {
 
   return (
     <aside
-      className={`fixed top-16 left-0 h-[calc(100vh-4rem)] ${
-        isSidebarOpen ? 'w-64' : 'w-16'
-      } transition-all duration-300 ease-in-out bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-30`}
+      className={`fixed top-16 left-0 h-[calc(100vh-4rem)] ${isSidebarOpen ? 'w-64' : 'w-16'
+        } transition-all duration-300 ease-in-out bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-30`}
     >
       <div className="flex flex-col h-full">
         <div className="flex-1 py-4 px-3 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
           {menuItems.map(renderMenuItem)}
         </div>
-        
+
         <div className="p-3 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={onLogout}

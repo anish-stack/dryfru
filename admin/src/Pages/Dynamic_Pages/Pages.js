@@ -31,7 +31,7 @@ const Pages = () => {
         const fetchPage = async () => {
             try {
                 const { data } = await axios.get(
-                    `https://api.dyfru.com/api/v1/admin/page/${page}`
+                    `http://localhost:7400/api/v1/admin/page/${page}`
                 );
                 setData(data.page);
                 setContent(data.page.content); // Set the content to be displayed
@@ -72,7 +72,7 @@ const Pages = () => {
             const updatedData = { content, ...meta };
             console.log(updatedData)
             await axios.put(
-                `https://api.dyfru.com/api/v1/admin/page/${page}`,
+                `http://localhost:7400/api/v1/admin/page/${page}`,
                 updatedData
             );
             alert("Page content updated successfully");

@@ -25,7 +25,7 @@ function ProductCard({bg=true , title='Explore Our Categories'}) {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get('https://api.dyfru.com/api/v1/get-product')
+            const response = await axios.get('http://localhost:7400/api/v1/get-product')
             console.log(response.data)
             const productData = response?.data?.products || []
             if (productData.length === 0) {
