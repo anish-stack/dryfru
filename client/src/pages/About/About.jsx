@@ -26,7 +26,7 @@ const About = () => {
             backgroundAttachment: 'fixed'
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-r backdrop-blur-[1px]"></div>
+          <div className="absolute inset-0 bg-gradient-to-r "></div>
         </div>
         <div className="relative h-full container mx-auto px-4 flex items-center">
           <div className="max-w-3xl">

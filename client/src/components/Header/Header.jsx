@@ -110,7 +110,7 @@ const Header = () => {
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center space-x-8">
-              {navLinks.map((link) => (
+              {navLinks.sort((a, b) => a.position - b.position).map((link) => (
                 <div
                   key={link._id}
                   className="relative group"

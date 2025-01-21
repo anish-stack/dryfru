@@ -112,6 +112,19 @@ const Footer = () => {
               ))}
             </ul>
           </div>
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-6">Categories</h3>
+            <ul className="space-y-3">
+              {categories.map((category) => (
+                <li key={category.name}>
+                  <a href={category.href} className="group flex items-center gap-2 text-white hover:text-amber-600 transition-colors">
+                    <ChevronRight className="h-4 w-4 text-amber-400 group-hover:text-amber-600 transition-colors" strokeWidth={1.5} />
+                    <span>{category.name}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
           <div className="lg:ml-12">
             <h3 className="text-lg font-semibold text-white mb-6">Policy</h3>
             <ul className="space-y-3">
@@ -127,19 +140,7 @@ const Footer = () => {
           </div>
 
           {/* Categories */}
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-6">Categories</h3>
-            <ul className="space-y-3">
-              {categories.map((category) => (
-                <li key={category.name}>
-                  <a href={category.href} className="group flex items-center gap-2 text-white hover:text-amber-600 transition-colors">
-                    <ChevronRight className="h-4 w-4 text-amber-400 group-hover:text-amber-600 transition-colors" strokeWidth={1.5} />
-                    <span>{category.name}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+         
 
           {/* Support */}
           <div>
