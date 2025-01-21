@@ -2,21 +2,28 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Lock, User } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
 
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login } = useAuth();
+
   const navigate = useNavigate();
+
+  // Default credentials
+  const defaultUsername = process.env.REACT_APP_ADMIN_EMAIL;
+  const defaultPassword = process.env.REACT_APP_ADMIN_PASSWORD;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      await login(username, password);
+
+    if (username === defaultUsername && password === defaultPassword) {
+
+      sessionStorage.setItem('user', JSON.stringify({ username }));
+
+      // Navigate to the dashboard
       navigate('/dashboard');
-    } catch (err) {
+    } else {
       setError('Invalid credentials');
     }
   };
