@@ -47,7 +47,7 @@ const Hero = () => {
                                 <div className="p-2 rounded-full bg-green-50">
                                     <Leaf className="w-5 h-5 text-green-600" />
                                 </div>
-                                <span className="text-sm font-medium text-gray-700">100% Organic</span>
+                                <span className="text-sm font-medium text-gray-700">100% Premium</span>
                             </div>
                             <div className="flex items-center gap-3">
                                 <div className="p-2 rounded-full bg-green-50">

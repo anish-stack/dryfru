@@ -16,10 +16,11 @@ const Footer = () => {
   ];
 
   const categories = [
-    { name: 'Almonds', href: '/productpage/6780facfe800bca193163977' },
-    { name: 'Cashews', href: '/productpage/6780fae573f5c96b00a45915' },
-    { name: 'Pistachios', href: '/productpage/6780fb0073f5c96b00a45916' },
-    { name: ' Nuts', href: '//productpage/6780fa0ae800bca193163975' }
+    { name: 'Dried Fruits', href: '/Page/details/67877f826526ff054713d8c9/Dried-Fruits' },
+    { name: 'Seeds', href: '/Page/details/67877f8b6526ff054713d8cb/Seeds' },
+    { name: 'New-Launches', href: '/Page/details/67877f996526ff054713d8cd/New-Launches' },
+    { name: 'Combos-&-Gifts', href: '/Page/details/67877fa16526ff054713d8cf/Combos-&-Gifts' },
+    { name: 'Nuts', href: '/Page/details/678df2e66d7b39fa6b81ecf6/Nuts' }
   ];
 
   const support = [

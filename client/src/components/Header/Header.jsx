@@ -118,7 +118,7 @@ const Header = () => {
                   onMouseLeave={handleDropdownLeave}
                 >
                   <Link
-                   
+                     to={`/Page/details/${link._id}/${link.name.replace(/\s+/g, '-').replace(/%/g, '-')}`}
                     className="flex items-center space-x-2 text-gray-700 hover:text-green-600 font-medium transition-all duration-200 py-6 group-hover:transform group-hover:translate-y-[2px]"                  >
                     <span>{link.name.replace(/%/g, '-')}</span>
                     {link.SubCategory.length > 0 && (
@@ -126,7 +126,7 @@ const Header = () => {
                     )}
                   </Link>
                   {link.SubCategory.length > 0 && activeDropdown === link._id && (
-                    <div className="absolute top-full left-0 animate-slideDown bg-white border border-gray-100 rounded-lg shadow-lg py-2 w-56 z-50">
+                    <div className="absolute top-full  left-0 animate-slideDown bg-white border border-gray-100 rounded-lg shadow-lg py-2 w-56 z-[999]">
                       {link.SubCategory.map((sub) => (
                         <Link
                           key={sub._id}
