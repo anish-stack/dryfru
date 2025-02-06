@@ -36,12 +36,11 @@ const Cart = () => {
     
 
     const handleQuantityUpdate = (id, variant, newQuantity) => {
-        console.log(id, variant, newQuantity)
+       
         dispatch(updateQuantity({ id, variant, quantity: newQuantity }));
     };
     const handleAddToCart = (product) => {
-        console.log("product", product)
-
+     
         const selected = {
             product_id: product._id,
             product_name: product.product_name,
