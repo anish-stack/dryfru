@@ -47,7 +47,7 @@ const Cart = () => {
             product_name: product.product_name,
             price: product.isVarient ? product.Varient[0].price : product.price,
             discount_percentage: product.isVarient ? product.Varient[0].discount_percentage : 0,
-            price_after_discount: product.isVarient ? product.Varient[0].price_after_discount : product.price,
+            price_after_discount: product.isVarient ? product.Varient[0].price_after_discount : product.price_after_discount,
             isVarient: product.isVarient,
             Qunatity: 1,
             variant: product.isVarient ? product.Varient[0].quantity : null,
