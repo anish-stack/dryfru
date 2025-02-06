@@ -46,7 +46,7 @@ function ProductPage() {
       product_name: product.product_name,
       price: product.isVarient ? product.Varient[selectedVariant].price : product.price,
       discount_percentage: product.isVarient ? product.Varient[selectedVariant].discount_percentage : 0,
-      price_after_discount: product.isVarient ? product.Varient[selectedVariant].price_after_discount : product.price,
+      price_after_discount: product.isVarient ? product.Varient[selectedVariant].price_after_discount : product.price_after_discount,
       isVarient: product.isVarient,
       Qunatity: quantity,
       variantId: product.isVarient ? product.Varient[0]._id : null,
