@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { addProduct, updateQuantity } from '../../store/slice/cart.slice';
 import { findMyDetails } from '../../utils/Api';
+import { Helmet } from 'react-helmet';
 
 const Cart = () => {
     const dispatch = useDispatch();
@@ -46,7 +47,7 @@ const Cart = () => {
             product_name: product.product_name,
             price: product.isVarient ? product.Varient[0].price : product.price,
             discount_percentage: product.isVarient ? product.Varient[0].discount_percentage : 0,
-            price_after_discount: product.isVarient ? product.Varient[0].price_after_discount : product.price_after_discount,
+            price_after_discount: product.isVarient ? product.Varient[0].price_after_discount : product.afterDiscountPrice,
             isVarient: product.isVarient,
             Qunatity: 1,
             variant: product.isVarient ? product.Varient[0].quantity : null,
@@ -65,6 +66,12 @@ const Cart = () => {
     };
 
     return (
+        <>
+          <Helmet>
+                        <title>Cart - Healthy Dry Fruits & Nuts Online</title>
+                      
+                    </Helmet>
+        
         <div className="min-h-screen bg-gray-50">
             <div className="container mx-auto px-4 py-8">
 
@@ -325,6 +332,7 @@ const Cart = () => {
                 </div>
             </div>
         </div>
+        </>
     );
 };
 

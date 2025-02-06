@@ -1,3 +1,8 @@
-# https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Disallow: /Verify-otp
+Disallow: /procced-to-checkout
+Disallow: /receipt/order-confirmed
+Disallow: /profile/
+Disallow: /forgetpassword
+Disallow: /login
+Disallow: /register

@@ -74,7 +74,7 @@ const Card = ({ product_name, tag, discount, ProductMainImage, price, isVarient,
             </button>
 
             {/* Image */}
-            <div onClick={() => window.location.href = `/productpage/${_id}`} className="relative cursor-pointer overflow-hidden rounded-t-2xl aspect-square">
+            <div onClick={() => window.location.href = `/productpage/${_id}?name=${product_name}`} className="relative cursor-pointer overflow-hidden rounded-t-2xl aspect-square">
                 <img
                     src={ProductMainImage?.url}
                     alt={product_name}
@@ -83,7 +83,7 @@ const Card = ({ product_name, tag, discount, ProductMainImage, price, isVarient,
             </div>
 
             {/* Content */}
-            <div onClick={() => window.location.href = `/productpage/${_id}`} className="p-4 cursor-pointer space-y-3">
+            <div onClick={() => window.location.href = `/productpage/${_id}?name=${product_name}`} className="p-4 cursor-pointer space-y-3">
                 {/* Title */}
                 <h3 className="font-semibold text-gray-900 line-clamp-1">
                     {product_name}

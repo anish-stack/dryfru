@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Phone, Mail, Clock, MapPin, Send } from 'lucide-react';
 import { findSettings } from '../../utils/Api';
 import axios from 'axios'
+import { Helmet } from 'react-helmet';
 function Support() {
   const [formData, setFormData] = useState({
     name: '',
@@ -65,7 +66,21 @@ function Support() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-50 py-12 px-4 sm:px-6 lg:px-8">
+   <>
+   <Helmet>
+  <title>{`Get in Touch - DyFru | Contact Us for Premium Dry Fruits & Nuts`}</title>
+  <meta 
+    name="description" 
+    content="Have questions or need assistance? Get in touch with DyFru! Contact us for inquiries about our premium dry fruits, nuts, orders, or wholesale deals." 
+  />
+  <meta 
+    name="keywords" 
+    content="Contact DyFru, get in touch, dry fruits customer support, nuts online help, buy dry fruits, wholesale dry fruits, DyFru support, premium nuts supplier" 
+  />
+</Helmet>
+
+   
+   <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-bold text-center text-green-800 mb-12">Get in Touch</h1>
 
@@ -204,6 +219,7 @@ function Support() {
         </div>
       </div>
     </div>
+   </>
   );
 }
 

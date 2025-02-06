@@ -3,6 +3,7 @@ import { Lock, Mail, Nut } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios'
 import toast from 'react-hot-toast';
+import { Helmet } from 'react-helmet';
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -44,6 +45,20 @@ function Login() {
   };
 
   return (
+    <>
+    <Helmet>
+  <title>{`Login to DyFru - Access Your Account`}</title>
+  <meta 
+    name="description" 
+    content="Login to your DyFru account to manage orders, track shipments, and shop for premium dry fruits and nuts online with ease." 
+  />
+  <meta 
+    name="keywords" 
+    content="DyFru login, account access, sign in DyFru, dry fruits shopping, nuts online, track orders, manage account, online dry fruits store" 
+  />
+</Helmet>
+
+    
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-orange-100 flex items-center justify-center p-4">
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl">
         {/* Logo and Header */}
@@ -162,6 +177,7 @@ function Login() {
         </form>
       </div>
     </div>
+    </>
   );
 }
 

@@ -10,6 +10,7 @@ import 'swiper/css/free-mode';
 import 'swiper/css/pagination';
 import { FreeMode, Pagination, Autoplay } from 'swiper/modules';
 import Button from '../../components/Button/Button';
+import { Helmet } from 'react-helmet';
 
 const Category_page = () => {
     const { id, category } = useParams()
@@ -55,6 +56,12 @@ const Category_page = () => {
     )
 
     return (
+        <>
+           <Helmet>
+                <title>{`${category} - Dyfru`}</title>
+                {/* <meta name="description" content={product.product_description} /> */}
+        
+              </Helmet>
         <section className={`relative py-16 px-0 bg-[#e8f4ec]`}>
             <div className="absolute inset-0 opacity-30" />
 
@@ -140,6 +147,7 @@ const Category_page = () => {
                 </div>
             </div>
         </section>
+        </>
     )
 }
 

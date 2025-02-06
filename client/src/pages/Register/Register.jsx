@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Lock, Mail, Nut, Phone, User, Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { Helmet } from 'react-helmet';
 
 function Register() {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -125,6 +126,20 @@ function Register() {
     };
 
     return (
+
+        <>
+        <Helmet>
+  <title>{`Create an Account - Join DyFru Today!`}</title>
+  <meta 
+    name="description" 
+    content="Sign up for a DyFru account and enjoy a seamless shopping experience. Get access to premium dry fruits, exclusive offers, and fast delivery." 
+  />
+  <meta 
+    name="keywords" 
+    content="register DyFru, create account, sign up, join DyFru, dry fruits online, buy nuts, healthy snacks, premium dry fruits store" 
+  />
+</Helmet>
+
         <div className="min-h-screen bg-gradient-to-br from-green-50 to-orange-100 flex items-center justify-center p-4">
             <div className="max-w-2xl w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl">
                 <div className="text-center">
@@ -282,6 +297,7 @@ function Register() {
                 </form>
             </div>
         </div>
+        </>
     );
 }
 
