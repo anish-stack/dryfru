@@ -167,20 +167,16 @@ const CreateProduct = () => {
         setLoading(true)
         const formDataObject = new FormData();
 
-        Object.entries(formData).forEach(([key, value]) => {
-            if (typeof value === 'object' && value.previewUrl) {
-
-                const { previewUrl, ...cleanedValue } = value;
-                formDataObject.append(key, cleanedValue.file || value);
-            } else if (key === 'Varient') {
-                formDataObject.append(key, JSON.stringify(value));
-                console.log(value);
-            } else {
-                // Append other non-file fields as-is
-                formDataObject.append(key, value);
-            }
-        });
-
+       Object.entries(formData).forEach(([key, value]) => {
+        if (value && typeof value === 'object' && value.previewUrl) {
+            const { previewUrl, ...cleanedValue } = value;
+            formDataObject.append(key, cleanedValue.file || value);
+        } else if (key === 'Varient') {
+            formDataObject.append(key, JSON.stringify(value));
+        } else if (value !== null && value !== undefined) {
+            formDataObject.append(key, value);
+        }
+    });
 
 
         try {
