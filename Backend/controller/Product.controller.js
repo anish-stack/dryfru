@@ -49,8 +49,8 @@ exports.createProduct = async (req, res) => {
         } = req.body;
 
         const uploadedImages = [];
-
-        // Upload all files to Cloudinary
+        
+      
         for (const file of req.files) {
             const result = await uploadBufferToCloudinary(file.buffer, file.originalname);
             uploadedImages.push({
@@ -59,12 +59,24 @@ exports.createProduct = async (req, res) => {
             });
         }
 
+       
+        let parsedVarients = JSON.parse(Varient || "[]");
+        parsedVarients = parsedVarients.map(variant => {
+            if (!variant.price_after_discount || variant.price_after_discount === '') {
+                const price = parseFloat(variant.price) || 0;
+                const discountPercentage = parseFloat(variant.discount_percentage) || 0;
+                const discountAmount = (price * discountPercentage) / 100;
+                variant.price_after_discount = (price - discountAmount).toFixed(2);
+            }
+            return variant;
+        });
+
         // Map uploaded images to specific fields
         const productData = {
             product_name,
             product_description,
             isVarient: JSON.parse(isVarient || false),
-            Varient: isVarient === 'false' ? [] : JSON.parse(Varient || "[]"),
+            Varient: isVarient === 'false' ? [] : parsedVarients,
             category,
             extra_description,
             tag,
@@ -81,7 +93,7 @@ exports.createProduct = async (req, res) => {
             FifthImage: uploadedImages[4] || null,
         };
 
-        console.log("Product Data:", productData);
+       
 
         // Create product in the database
         const product = await ProductModel.create(productData);
@@ -100,6 +112,7 @@ exports.createProduct = async (req, res) => {
         });
     }
 };
+
 
 exports.getAllProducts = async (req, res) => {
     try {
@@ -257,6 +270,17 @@ exports.updateProduct = async (req, res) => {
 
         if (isVarient !== undefined) {
             updateFields.isVarient = JSON.parse(isVarient);
+            let parsedVarients = JSON.parse(Varient || "[]");
+            parsedVarients = parsedVarients.map(variant => {
+                if (!variant.price_after_discount || variant.price_after_discount === '') {
+                    const price = parseFloat(variant.price) || 0;
+                    const discountPercentage = parseFloat(variant.discount_percentage) || 0;
+                    const discountAmount = (price * discountPercentage) / 100;
+                    variant.price_after_discount = (price - discountAmount).toFixed(2);
+                }
+                return variant;
+            });
+            updateFields.Varient = parsedVarients;
         }
         if (Varient !== undefined) {
             updateFields.Varient = JSON.parse(Varient || "[]");
@@ -321,7 +345,7 @@ exports.updateProduct = async (req, res) => {
                 message: "Product not found",
             });
         }
-
+console.log(updatedProduct)
         res.status(200).json({
             success: true,
             message: "Product updated successfully",
@@ -336,4 +360,5 @@ exports.updateProduct = async (req, res) => {
         });
     }
 };
+
 
