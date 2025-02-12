@@ -18,6 +18,11 @@ import Announcements from './components/Announcements/Announcements';
 import Coupon from './Pages/Coupons/Coupon';
 import Categories from './Pages/Categories/Categories';
 import ProtectedRoute from './context/ProtectedRoute';
+import EditAboutUs from './Pages/About/EditAboutUs';
+import TestimonialCreate from './Pages/Testimonial/TestimonialCreate';
+import TestimonialGet from './Pages/Testimonial/TestimonialGet';
+import CreateBlogs from './Pages/Blogs/CreateBlogs';
+import Blogs from './Pages/Blogs/Blogs';
 
 function App() {
   return (
@@ -44,6 +49,11 @@ function App() {
             <Route path="coupons" element={<Coupon />} />
             <Route path="reports" element={<Reports />} />
             <Route path="support" element={<Support />} />
+            <Route path="Blogs/create" element={<CreateBlogs />} />
+            <Route path="Blogs/manage" element={<Blogs />} />
+            <Route path="Abouts/Edit" element={<EditAboutUs />} />
+            <Route path="Testimonial/create" element={<TestimonialCreate />} />
+            <Route path="Testimonial/manage" element={<TestimonialGet />} />
           </Route>
         </Route>
 

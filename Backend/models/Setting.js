@@ -113,7 +113,8 @@ const settingSchema = new mongoose.Schema({
     lowStockThreshold: {
         type: Number,
         default: 5 
-    }
+    },
+    
 }, { timestamps: true });
 
 module.exports = mongoose.model('Setting', settingSchema);

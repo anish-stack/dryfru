@@ -104,7 +104,7 @@ const Pages = () => {
                     </div>
 
                     {/* Jodit Editor */}
-                    <div className="relative editor-container mt-4 bg-white p-4 rounded-md shadow-md">
+                    <div className="relative editor-container mt-4 p-4 rounded-md shadow-md">
                         {/* Edit Badge */}
                         <span className="absolute top-0 z-30 right-2 bg-green-500 text-white text-sm px-7 py-1 rounded-full">
                             Edit
@@ -120,7 +120,7 @@ const Pages = () => {
 
 
                     {/* Meta Information Form */}
-                    <div className="mt-8 relative bg-white p-6 rounded-md shadow-md">
+                    <div className="mt-8 relative  p-6 rounded-md shadow-md">
                         {/* Edit Badge */}
                         <span className="absolute top-0 z-30 right-2 bg-green-500 text-white text-sm px-7 py-1 rounded-full">
                             Edit

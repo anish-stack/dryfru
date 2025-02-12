@@ -1,15 +1,31 @@
 const express = require('express');
-const { RegisterUser, LogginUser, LogoutUser, PasswordChangeRequest, verifyOtpForSignIn, Resend_Otp, getAllUsers, findMe, addWhisList, getWishlist } = require('../controller/User.controller');
+const { RegisterUser, LogginUser, LogoutUser, PasswordChangeRequest, verifyOtpForSignIn, Resend_Otp, getAllUsers, findMe, addWhisList, getWishlist, deleteUser } = require('../controller/User.controller');
 const { protect } = require('../middleware/auth');
-const { createProduct, getAllProducts, deleteProductById, getProductById, updateProduct, getProductsByCategory, getProductsBySubCategory } = require('../controller/Product.controller');
+const { createProduct, getAllProducts, deleteProductById, getProductById, updateProduct, getProductsByCategory, getProductsBySubCategory, search_product_and_filter } = require('../controller/Product.controller');
 const multer = require("multer");
-const { createOrderOfProduct, ChangeOrderStatus, getAllOrder, getMyLastOrder, checkStatus, getOrderByOrderId, OrderProcessRating, getMyAllOrder, getOrderByOrderIdAdmin, generateOrderReport, getRecentsOrders } = require('../controller/Order_Controller');
+const { createOrderOfProduct, ChangeOrderStatus, getAllOrder, getMyLastOrder, checkStatus, getOrderByOrderId, OrderProcessRating, getMyAllOrder, getOrderByOrderIdAdmin, generateOrderReport, getRecentsOrders, deleteOrder } = require('../controller/Order_Controller');
 const { addSettings, editSettings, getSettings } = require('../controller/Settings');
 const { createHeroPage, getHeroPage } = require('../controller/Hero.controller');
 const { createPage, getAllPages, getSinglePage, updatePage, deletePage, createAnnouncements, getAnnouncements, updateAnnouncement, deleteAnnouncement } = require('../controller/Pages.controller');
 const { createContact, getAllContacts, updateContact, deleteContact } = require('../controller/Contact.controller');
 const { createCoupon, updateCoupon, deleteCoupon, applyCoupon, getAllCoupons } = require('../controller/Coupon.controller');
 const { createCategory, getCategories, getCategoryById, updateCategory, deleteCategory, addSubcategory, UpdateSubcategory, deleteSubcategory, getSubcategoriesByCategory } = require('../controller/Category.controller');
+const { getAbout, createOrUpdateAbout } = require('../controller/aboutController');
+const {
+    createTestimonial,
+    getAllTestimonials,
+    getTestimonialById,
+    updateTestimonial,
+    deleteTestimonial
+} = require("../controller/testimonialController");
+
+const {
+    createBlog,
+    getAllBlogs,
+    getBlogBySlug,
+    updateBlog,
+    deleteBlog
+} = require("../controller/blogController");
 const storage = multer.memoryStorage()
 
 const upload = multer({ storage });
@@ -79,6 +95,7 @@ router.put('/admin/sub-category/edit/:id', UpdateSubcategory);
 router.get('/admin/get-users', getAllUsers);
 router.post('/admin/change-order-status', ChangeOrderStatus);
 router.get('/admin/get-all-order', getAllOrder);
+router.delete('/admin/delete/:id', deleteUser);
 
 //Admin Settings routes
 router.post('/admin/create_and_update/hero_page', createHeroPage);
@@ -112,12 +129,31 @@ router.delete('/delete-product/:id', deleteProductById);
 
 // Order Routes
 router.post('/add-order', protect, createOrderOfProduct);
-router.post('/verify-payment/:merchantTransactionId', checkStatus);
+// router.post('/verify-payment/:merchantTransactionId', checkStatus);
+router.post('/verify-payment', checkStatus);
+router.delete('/admin/delete-order/:id', deleteOrder);
 
+// about Routes
+router.get("/get-about", getAbout);
+router.post("/create-or-update-about", createOrUpdateAbout);
 
+//testimonial routes
 
+router.post("/testimonial", createTestimonial);
+router.get("/testimonial", getAllTestimonials);
+router.get("/testimonial/:id", getTestimonialById);
+router.put("/testimonial/:id", updateTestimonial);
+router.delete("/testimonial/:id", deleteTestimonial);
 
+// Routes for blog
+router.post("/blog", createBlog);
+router.get("/blog", getAllBlogs);
+router.get("/blog/:slug", getBlogBySlug)
+router.put("/blog/:id", updateBlog)
+router.delete("/blog/:id", deleteBlog)
 
+//search query
+router.get("/search_product_and_filter", search_product_and_filter)
 
 
 

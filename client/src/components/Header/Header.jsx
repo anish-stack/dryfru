@@ -18,6 +18,7 @@ import { fetchWishlist } from '../../store/slice/whishlist';
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [search_word, setSearchWord] = useState('')
   const [scrolled, setScrolled] = useState(false);
   const [token, setToken] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -40,6 +41,28 @@ const Header = () => {
     }
     fetch();
   }, []);
+
+  const handleSearch = () => {
+    if (search_word.length > 2) {
+
+      window.location.href = `/Search-Product?query=${search_word}&price=high&page=1`
+    }
+  }
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Enter" && search_word.length > 2) {
+        handleSearch();
+      }
+    };
+
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [search_word]);
 
   useEffect(() => {
     const tokens = sessionStorage.getItem('token_login') || {};
@@ -118,7 +141,7 @@ const Header = () => {
                   onMouseLeave={handleDropdownLeave}
                 >
                   <Link
-                     to={`/Page/details/${link._id}/${link.name.replace(/\s+/g, '-').replace(/%/g, '-')}`}
+                    to={`/Page/details/${link._id}/${link.name.replace(/\s+/g, '-').replace(/%/g, '-')}`}
                     className="flex items-center space-x-2 text-gray-700 hover:text-green-600 font-medium transition-all duration-200 py-6 group-hover:transform group-hover:translate-y-[2px]"                  >
                     <span>{link.name.replace(/%/g, '-')}</span>
                     {link.SubCategory.length > 0 && (
@@ -149,21 +172,21 @@ const Header = () => {
 
             {/* Right Section */}
             <div className="flex items-center space-x-4 lg:space-x-6">
-              {/* <button
+              <button
                 onClick={() => setShowSearch(!showSearch)}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
                 <Search className="h-5 w-5 text-gray-700" />
-              </button> */}
+              </button>
 
-              <Link to="/wishlist" className="relative p-2 hover:bg-gray-100 rounded-full transition-colors">
+              {/* <Link to="/wishlist" className="relative p-2 hover:bg-gray-100 rounded-full transition-colors">
                 <Heart className="h-5 w-5 text-gray-700" />
                 {wishlist.length > 0 && (
                   <span className="absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                     {wishlist.length}
                   </span>
                 )}
-              </Link>
+              </Link> */}
 
               <Link to="/cart" className="relative p-2 hover:bg-gray-100 rounded-full transition-colors">
                 <ShoppingCart className="h-5 w-5 text-gray-700" />
@@ -194,18 +217,21 @@ const Header = () => {
           </div>
 
           {/* Search Bar */}
-          {/* <div className={`overflow-hidden transition-all duration-300 ${showSearch ? 'h-16 opacity-100' : 'h-0 opacity-0'}`}>
+          <div className={`overflow-hidden transition-all duration-300 ${showSearch ? 'h-16 opacity-100' : 'h-0 opacity-0'}`}>
             <div className="container mx-auto px-4 py-3">
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search for products..."
+                  value={search_word}
+                  name='search_word'
+                  onChange={(e) => setSearchWord(e.target.value)}
+                  placeholder="Search for products... Type at least 3 characters and press Enter"
                   className="w-full pl-12 pr-4 py-2 bg-gray-50 border border-green-200 rounded-full focus:outline-none focus:border-green-500 transition-colors"
                 />
                 <Search className="absolute left-4 top-2.5 h-5 w-5 text-gray-400" />
               </div>
             </div>
-          </div> */}
+          </div>
         </div>
       </header>
 

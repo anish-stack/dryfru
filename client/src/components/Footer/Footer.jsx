@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin, ChevronRight, Leaf, YoutubeIcon } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin, ChevronRight, Leaf, YoutubeIcon, Building } from 'lucide-react';
 import logo from './footlogo.png'
 import axios from 'axios'
 import { findSettings } from '../../utils/Api';
@@ -11,7 +11,7 @@ const Footer = () => {
     { name: 'Login', href: '/Login' },
     { name: 'About', href: '/about' },
     { name: 'Shop', href: '/shop' },
-    { name: 'support', href: '/support' },
+    { name: 'Contact Us', href: '/support' },
     { name: 'Cart', href: '/Cart' }
   ];
 
@@ -73,10 +73,16 @@ const Footer = () => {
               <span className="text-2xl font-bold text-gray-800">NUTRI<span className="text-amber-600">NUTS</span></span> */}
               <img width={100} src={logo} alt="" />
             </div>
-            <p className="text-white text-sm leading-relaxed">
+            {/* <p className="text-white text-sm leading-relaxed">
               Premium quality nuts and dry fruits, carefully sourced and delivered fresh to your doorstep.
-            </p>
+            </p> */}
             <div className="space-y-4">
+              <a className="flex items-center gap-3 text-gray-600 hover:text-amber-600 transition-colors group">
+                <div className="p-2 bg-amber-100 rounded-lg group-hover:bg-amber-200 transition-colors">
+                  <Building className="h-4 w-4 text-amber-600" strokeWidth={1.5} />
+                </div>
+                <span className=' text-white'>Seizel Sixth India Private Limited</span>
+              </a>
               <a href={`tel:${settings?.contactNumber}`} className="flex items-center gap-3 text-gray-600 hover:text-amber-600 transition-colors group">
                 <div className="p-2 bg-amber-100 rounded-lg group-hover:bg-amber-200 transition-colors">
                   <Phone className="h-4 w-4 text-amber-600" strokeWidth={1.5} />

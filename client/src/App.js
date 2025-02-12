@@ -19,6 +19,9 @@ import Support from './pages/Support/Support';
 import Category_page from './pages/Category_page/Category_page';
 import BottomNavigation from './components/Header/BottomNavigation';
 import Product_sub from './pages/Category_page/Product_Sub';
+import Whatsapp from './components/Whatsapp/Whatsapp';
+import BlogDetails from './pages/Blogs/BlogDetails';
+import SearchProduct from './pages/SearchProduct/SearchProduct';
 
 function App() {
 
@@ -49,7 +52,10 @@ function App() {
         <Route path='/login' element={<Login />} />
         <Route path='/register' element={<Register />} />
         <Route path='/forgetpassword' element={<ForgetPassword />} />
+        <Route path='/blog/:slug' element={<BlogDetails />} />
+        <Route path='/Search-Product' element={<SearchProduct />} />
       </Routes>
+      <Whatsapp/>
       {/* <BottomNavigation /> */}
     </>
   );

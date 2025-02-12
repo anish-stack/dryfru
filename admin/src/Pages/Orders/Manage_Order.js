@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { ChevronLeft, ChevronRight, Loader2, AlertCircle, Package } from "lucide-react";
+import toast from "react-hot-toast";
 
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -60,7 +61,9 @@ const ManageOrder = () => {
         setLoading(true);
         await axios.delete(`https://api.dyfru.com/api/v1/admin/delete-order/${orderId}`);
         fetchOrders(currentPage);
+        toast.success("Order deleted successfully");
       } catch (err) {
+        console.log(err)
         setError("Failed to delete order. Please try again later.");
         setLoading(false);
       }

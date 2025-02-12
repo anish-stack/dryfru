@@ -1,16 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import almonds from './almonds.webp';
-import pecan from './pecan.jpg';
-import cashew from './cashew.webp';
-import kismish from './kismish.jpg';
-import walnuts from './walnuts.jpg';
-import pistachios from './pistachios.webp';
-import peanuts from './peanuts_img.cms';
-import mixed from './mix_dry.webp';
-import productBg from './productBg.jpg'
+
 import Card from '../Card/Card';
 import Button from '../Button/Button';
-import { ArrowRight } from 'lucide-react';
+
 import { Swiper, SwiperSlide } from 'swiper/react';
 import axios from 'axios'
 // Import Swiper styles

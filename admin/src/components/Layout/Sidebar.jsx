@@ -16,6 +16,7 @@ import {
   ChevronDown,
   Plus,
   Layers,
+  LucideNotebookPen,
   PackageCheck,
   PackageOpenIcon
 } from 'lucide-react';
@@ -42,11 +43,22 @@ const Sidebar = ({ isSidebarOpen, onLogout }) => {
       icon: PackageOpenIcon,
       path: '/Categories'
     },
-    // { 
-    //   title: 'Banners', 
-    //   icon: Image, 
-    //   path: '/banners' 
-    // },
+    {
+      title: 'Testimonial',
+      icon: Image,
+      submenu: [
+        { title: 'Create Testimonial', path: '/Testimonial/create', icon: Plus },
+        { title: 'Manage Testimonial', path: '/Testimonial/manage', icon: Layers }
+      ]
+    },
+    {
+      title: 'Blogs',
+      icon: LucideNotebookPen,
+      submenu: [
+        { title: 'Create Blog', path: '/Blogs/create', icon: Plus },
+        { title: 'Manage Blog', path: '/Blogs/manage', icon: Layers }
+      ]
+    },
     {
       title: 'Users',
       icon: Users,
@@ -68,7 +80,9 @@ const Sidebar = ({ isSidebarOpen, onLogout }) => {
       submenu: [
         { title: 'Privacy Policy', path: '/pages/Privacy-Policy' },
         { title: 'Return & Refund', path: '/pages/Return-Refund' },
-        { title: 'Terms & Conditions', path: '/pages/Term-And-Conditions' }
+        { title: 'Terms & Conditions', path: '/pages/Term-And-Conditions' },
+        { title: 'Shipping Policy', path: '/pages/shipping-policy' },
+        { title: 'About Us', path: '/Abouts/Edit' }
       ]
     },
     {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const AllUsers = () => {
   const [users, setUsers] = useState([]);
@@ -35,28 +36,28 @@ const AllUsers = () => {
 
     // Apply search filter
     if (filters.searchTerm) {
-      filteredData = filteredData.filter(user => 
+      filteredData = filteredData.filter(user =>
         user.Name.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
-        user.Email.toLowerCase().includes(filters.searchTerm.toLowerCase()) 
+        user.Email.toLowerCase().includes(filters.searchTerm.toLowerCase())
       );
     }
 
     // Apply date range filter
     if (filters.startDate) {
-      filteredData = filteredData.filter(user => 
+      filteredData = filteredData.filter(user =>
         new Date(user.createdAt) >= new Date(filters.startDate)
       );
     }
 
     if (filters.endDate) {
-      filteredData = filteredData.filter(user => 
+      filteredData = filteredData.filter(user =>
         new Date(user.createdAt) <= new Date(filters.endDate)
       );
     }
 
     // Apply verification filter
     if (filters.isVerified !== '') {
-      filteredData = filteredData.filter(user => 
+      filteredData = filteredData.filter(user =>
         user.isVerified.toString() === filters.isVerified
       );
     }
@@ -90,6 +91,27 @@ const AllUsers = () => {
     setPagination({ ...pagination, currentPage: page });
   };
 
+  const handleDelete = async (id) => {
+    console.log("Deleting user with ID:", id);
+    try {
+      const response = await axios.delete(`https://api.dyfru.com/api/v1/admin/delete/${id}`);
+
+      if (response.data.success) {
+        setUsers(users.filter(user => user._id !== id));
+        toast.success('User deleted successfully');
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast.error(error.response?.data?.message || "Failed to delete user");
+    }
+  };
+
+
+
+
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -100,7 +122,7 @@ const AllUsers = () => {
 
   return (
     <div className="container mx-auto p-6">
-   
+
       <div className="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
           <label className="block dark:text-white text-gray-900  text-sm font-medium mb-1">Search by Name, Email, or Phone</label>
@@ -160,14 +182,9 @@ const AllUsers = () => {
                 <td className="py-2 px-4 border-b">{user.ContactNumber}</td>
                 <td className="py-2 px-4 border-b">{user.Role}</td>
                 <td className="py-2 px-4 border-b">
+                  
                   <button
-                    // onClick={() => handleAction('block', user._id)}
-                    className="bg-yellow-500 text-white px-3 py-1 rounded mr-2"
-                  >
-                    Block
-                  </button>
-                  <button
-                    // onClick={() => handleAction('delete', user._id)}
+                   onClick={() => handleDelete(user._id)}
                     className="bg-red-500 text-white px-3 py-1 rounded"
                   >
                     Delete

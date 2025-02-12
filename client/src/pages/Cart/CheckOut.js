@@ -171,7 +171,8 @@ const CheckOut = () => {
             status: 'pending',
             orderNote
         };
-        setLoading(true)
+
+        setLoading(true);
         try {
             const token = sessionStorage.getItem('token_login');
             if (!token) {
@@ -179,7 +180,7 @@ const CheckOut = () => {
                 return;
             }
 
-            const response = await axios.post(
+            const { data } = await axios.post(
                 'https://api.dyfru.com/api/v1/add-order',
                 orderData,
                 {
@@ -189,24 +190,60 @@ const CheckOut = () => {
                 }
             );
 
+            console.log(data);
+            const { razorpayOrderId, amount, currency } = data;
 
             if (paymentMethod === 'ONLINE') {
-                // Redirect to payment gateway
-                window.location.href = response.data.url;
-            } else {
-                // Redirect to order success page 
-                setTimeout(() => {
+                const options = {
+                    key: process.env.REACT_APP_RAZORPAY_KEY_ID,
+                    amount: amount * 100,
+                    currency: currency,
+                    name: "Seizel Sixth India Private Limited",
+                    description: "Payment for order",
+                    order_id: razorpayOrderId,
+                    image: "https://i.ibb.co/tftKFYc/android-chrome-192x192.png",
+                    theme: {
+                        color: "#005D31",
+                    },
+                    handler: function (response) {
+                        setLoading(true)
+                        axios.post("https://api.dyfru.com/api/v1/verify-payment", response)
+                            .then(responseData => {
+                                if (responseData.data.success) {
+                                    setLoading(false)
+                                    window.location.href = responseData.data.redirectUrl;
+                                } else {
+                                    setLoading(false)
+                                    setError('Payment failed. Please try again.');
+                                }
+                            })
+                            .catch(err => {
+                                setLoading(false)
+                                console.error('Payment verification failed:', err);
+                                setError('Payment verification failed. Please try again.');
+                            });
 
-                    window.location.href = `/Receipt/order-confirmed?id=${response.data.order?._id}&success=true&data=${response.data.order?.orderId}`;
-                }, 2000)
+                        console.log("Payment Successful", response);
+                    }
+                };
+
+                const razorpay = new window.Razorpay(options);
+                razorpay.open();
+
+            } else {
+                // Redirect to order success page
+                setTimeout(() => {
+                    window.location.href = `/Receipt/order-confirmed?id=${data.order?._id}&success=true&data=${data.order?.orderId}`;
+                }, 2000);
             }
-            setLoading(false)
+            setLoading(false);
 
         } catch (error) {
-            setLoading(false)
+            setLoading(false);
             setError('Failed to place order. Please try again.');
         }
     };
+
 
 
 

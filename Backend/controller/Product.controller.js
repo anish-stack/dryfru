@@ -49,8 +49,8 @@ exports.createProduct = async (req, res) => {
         } = req.body;
 
         const uploadedImages = [];
-        
-      
+
+
         for (const file of req.files) {
             const result = await uploadBufferToCloudinary(file.buffer, file.originalname);
             uploadedImages.push({
@@ -59,7 +59,7 @@ exports.createProduct = async (req, res) => {
             });
         }
 
-       
+
         let parsedVarients = JSON.parse(Varient || "[]");
         parsedVarients = parsedVarients.map(variant => {
             if (!variant.price_after_discount || variant.price_after_discount === '') {
@@ -71,6 +71,10 @@ exports.createProduct = async (req, res) => {
             return variant;
         });
 
+        let categoriesChile;
+        if (sub_category === null) {
+            categoriesChile = null
+        }
         // Map uploaded images to specific fields
         const productData = {
             product_name,
@@ -80,7 +84,7 @@ exports.createProduct = async (req, res) => {
             category,
             extra_description,
             tag,
-            sub_category,
+            sub_category: categoriesChile,
             price,
             discount,
             afterDiscountPrice,
@@ -93,7 +97,7 @@ exports.createProduct = async (req, res) => {
             FifthImage: uploadedImages[4] || null,
         };
 
-       
+
 
         // Create product in the database
         const product = await ProductModel.create(productData);
@@ -157,7 +161,7 @@ exports.getProductsByCategory = async (req, res) => {
 };
 exports.getProductsBySubCategory = async (req, res) => {
     try {
-        console.log("sun hshsh",req.params.id)
+        console.log("sun hshsh", req.params.id)
         if (!req.params.id) {
             return res.status(400).json({
                 success: false,
@@ -256,7 +260,9 @@ exports.updateProduct = async (req, res) => {
             isShowOnHomeScreen,
         } = req.body;
 
-        // Dynamically add only updated fields
+        console.log(Varient)
+
+
         if (product_name !== undefined) updateFields.product_name = product_name;
         if (product_description !== undefined) updateFields.product_description = product_description;
         if (price !== undefined) updateFields.price = price;
@@ -271,17 +277,37 @@ exports.updateProduct = async (req, res) => {
         if (isVarient !== undefined) {
             updateFields.isVarient = JSON.parse(isVarient);
             let parsedVarients = JSON.parse(Varient || "[]");
+
             parsedVarients = parsedVarients.map(variant => {
-                if (!variant.price_after_discount || variant.price_after_discount === '') {
-                    const price = parseFloat(variant.price) || 0;
-                    const discountPercentage = parseFloat(variant.discount_percentage) || 0;
-                    const discountAmount = (price * discountPercentage) / 100;
-                    variant.price_after_discount = (price - discountAmount).toFixed(2);
+                const price = Number(variant.price) || 0;
+                console.log("price:", price);
+
+                const discountPercentage = Number(variant.discount_percentage) || 0;
+                console.log("discountPercentage:", discountPercentage);
+
+                const discountAmount = (price * discountPercentage) / 100;
+                console.log("discountAmount:", discountAmount);
+
+                const newPriceAfterDiscount = (price - discountAmount).toFixed(2);
+                console.log("newPriceAfterDiscount:", newPriceAfterDiscount);
+
+                // Ensure recalculation when discount or price changes
+                if (
+                    price !== Number(variant.price) ||
+                    discountPercentage !== Number(variant.discount_percentage) ||
+                    newPriceAfterDiscount !== variant.price_after_discount
+                ) {
+                    variant.price_after_discount = newPriceAfterDiscount;
                 }
+
+                console.log("Updated Variant:", variant);
                 return variant;
             });
+
             updateFields.Varient = parsedVarients;
         }
+
+
         if (Varient !== undefined) {
             updateFields.Varient = JSON.parse(Varient || "[]");
         }
@@ -345,7 +371,8 @@ exports.updateProduct = async (req, res) => {
                 message: "Product not found",
             });
         }
-console.log(updatedProduct)
+
+        console.log("updatedProduct", updatedProduct)
         res.status(200).json({
             success: true,
             message: "Product updated successfully",
@@ -361,4 +388,56 @@ console.log(updatedProduct)
     }
 };
 
+
+exports.search_product_and_filter = async (req, res) => {
+    try {
+        const { query, page = 1 } = req.query;
+        const perPage = 10; 
+        let filter = {};
+
+        if (query) {
+            filter = {
+                $or: [
+                    { product_name: { $regex: query, $options: 'i' } },
+                    { product_description: { $regex: query, $options: 'i' } },
+                ],
+            };
+        }
+
+        let totalProducts = await ProductModel.countDocuments(filter);
+        let products = await ProductModel.find(filter)
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * perPage)
+            .limit(perPage)
+            .populate('category');
+
+        let message = "Products found based on your search.";
+
+        // If no products found, return all products as fallback
+        if (products.length === 0) {
+            totalProducts = await ProductModel.countDocuments();
+            products = await ProductModel.find()
+                .sort({ createdAt: -1 })
+                .skip((page - 1) * perPage)
+                .limit(perPage)
+                .populate('category');
+
+            message = "No matching products found. Showing all available products.";
+        }
+
+        const totalPages = Math.ceil(totalProducts / perPage);
+
+        res.json({
+            success: true,
+            message,
+            totalProducts,
+            totalPages,
+            currentPage: Number(page),
+            data: products,
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Server error. Please try again later." });
+    }
+};
 

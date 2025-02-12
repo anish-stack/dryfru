@@ -53,6 +53,9 @@ const orderSchema = new Schema({
         paymentInital: {
             type: Date
         },
+        razorpayOrderId:{
+            type: String
+        },
         phonepeOrderId: {
             type: String
         },

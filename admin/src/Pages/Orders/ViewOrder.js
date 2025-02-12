@@ -145,13 +145,13 @@ const ViewOrder = () => {
     </div>
     <div className="flex justify-between">
       <span className="text-gray-600 font-medium">Transaction ID:</span>
-      <span className="text-gray-800">{orderData.payment.transactionId}</span>
+      <span className="text-gray-800">{orderData?.payment?.transactionId}</span>
     </div>
     <div className="flex justify-between items-center">
       <span className="text-gray-600 font-medium">Status:</span>
       <span
         className={`ml-2 px-3 py-1 rounded-full text-sm font-semibold ${
-          orderData.payment.status === 'COMPLETED'
+          orderData.payment.status === 'Paid'
             ? 'bg-green-100 text-green-800'
             : 'bg-yellow-100 text-yellow-800'
         }`}

@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const axios = require('axios');
 const Order = require('../models/Order.model')
 const Settings = require('../models/Setting');
-
+const Razorpay = require('razorpay');
 async function initiatePayment(req, res, order) {
     try {
         const { totalAmount } = req.body;
@@ -92,4 +92,68 @@ async function initiatePayment(req, res, order) {
     }
 }
 
-module.exports = { initiatePayment };
+async function initiateRazorpay(req, res, order) {
+    try {
+        const { totalAmount } = order || {};
+        if (!totalAmount) {
+            return res.status(400).json({ success: false, msg: "Total amount is required" });
+        }
+
+
+
+        const SettingsFind = await Settings.findOne();
+        const razorpayKey = process.env.RAZORPAY_KEY_ID || SettingsFind?.paymentGateway?.key;
+        const razorpaySecret = process.env.RAZORPAY_SECRET || SettingsFind?.paymentGateway?.secret;
+
+        const razorpay = new Razorpay({
+            key_id: razorpayKey,
+            key_secret: razorpaySecret,
+        });
+
+        const options = {
+            amount: Math.round(totalAmount * 100), // Ensure integer value
+            currency: 'INR',
+            receipt: crypto.randomBytes(10).toString('hex'),
+            payment_capture: 1,
+        };
+
+        const response = await razorpay.orders.create(options);
+        console.log(response)
+        const date = new Date();
+
+        if (response) {
+            const findOrder = await Order.findById(order?._id);
+            if (findOrder) {
+                findOrder.payment = {
+                    method: 'RAZORPAY',
+                    paymentInital: date,
+                    razorpayOrderId: response.id,
+                    status: 'pending',
+                };
+                await findOrder.save();
+            }
+        }
+
+        res.status(201).json({
+            success: true,
+            msg: 'Payment initiated successfully',
+            amount: totalAmount,
+            razorpayOrderId: response.id,
+            order: order,
+            currency: response.currency,
+        });
+    } catch (error) {
+        console.error('Error initiating Razorpay payment:', error);
+        res.status(500).json({
+            success: false,
+            msg: 'Payment initiation failed',
+            error: error?.error || error,
+        });
+    }
+}
+
+
+
+
+
+module.exports = { initiatePayment , initiateRazorpay };

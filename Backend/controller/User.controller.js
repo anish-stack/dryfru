@@ -3,6 +3,7 @@ const EmailQueue = require("../queues/email");
 const sendToken = require("../utils/sendToken")
 const Wishlist = require("../models/Whislist");
 const mongoose = require("mongoose");
+const Order = require("../models/Order.model");
 exports.RegisterUser = async (req, res) => {
     try {
         const { Name, Email, Password, ContactNumber, Role = "User" } = req.body;
@@ -599,6 +600,44 @@ exports.getWishlist = async (req, res) => {
             success: false,
             message: "Error fetching wishlist.",
             error: error.message,
+        });
+    }
+};
+
+
+exports.deleteUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: "User ID is required.",
+            });
+        }
+
+        const user = await User.findByIdAndDelete(id);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found.",
+            });
+        }
+
+        // Delete all orders associated with the user
+        await Order.deleteMany({ userId: id });
+
+        return res.status(200).json({
+            success: true,
+            message: "User and their orders deleted successfully.",
+        });
+
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred while deleting the user.",
         });
     }
 };
