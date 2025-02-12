@@ -54,7 +54,7 @@ export const findMyLastOrder = async () => {
         if (data && data.order) {
             return data.order;
         }
-        throw new Error('Order not found');
+        // throw new Error('Order not found');
     } catch (error) {
         console.error(error);
 
@@ -83,16 +83,22 @@ export const findMyAllOrders = async () => {
                 Authorization: `Bearer ${sessionStorage.getItem('token_login')}`,
             },
         });
-        if (data && data.order) {
-            return data.order;
-        }
-        throw new Error('Settings not found');
-    } catch (error) {
-        console.error(error);
 
-        // throw new Error('Login First');
+        if (data && data.order) {
+            // Filter only orders with 'paid' status or COD payment type
+            const filteredOrders = data.order.filter(
+                (item) => item.payment?.status === 'paid' || item.paymentType === 'COD'
+            );
+            return filteredOrders;
+        }
+
+        throw new Error('No orders found');
+    } catch (error) {
+        console.error('Error fetching orders:', error.message);
+        return []; // Return empty array instead of crashing the app
     }
 };
+
 
 
 export const ApiHandleLogout = async () => {
