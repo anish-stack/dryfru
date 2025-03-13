@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { BookOpen, Calendar, ChevronLeft, ChevronRight, Tag, User } from "lucide-react";
 
+const ITEM_MAX_LIMIT = 5
 const Blogs = () => {
   const baseUrl = "https://api.dyfru.com/api/v1/blog";
   const [blogs, setBlogs] = useState([]);
@@ -77,17 +78,22 @@ const Blogs = () => {
                   </p>
 
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {blog.metaKeyWord.map((keyword, index) => (
-                      keyword && (
-                        <span
-                          key={index}
-                          className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-700"
-                        >
-                          <Tag className="w-3 h-3 mr-1" />
-                          {keyword.trim()}
-                        </span>
-                      )
+                    {blog && blog.metaKeyWord.length > 0 && blog.metaKeyWord.slice(0, ITEM_MAX_LIMIT).map((item, i) => (
+                      <span
+                        key={i}
+                        className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-700"
+                      >
+                        <Tag className="w-3 h-2 mr-1" />
+                        {item.trim()}
+
+                      </span>
                     ))}
+                    {blog && blog.metaKeyWord.length > 5 && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">
+                        +{blog.metaKeyWord.length - 5} more...
+                      </span>
+                    )}
+
                   </div>
 
                   <div className="flex justify-between items-center mt-6">
