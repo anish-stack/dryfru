@@ -140,7 +140,7 @@ function Support() {
 
       }
       const response = await axios.post('https://api.dyfru.com/api/v1/support-request', data);
-      console.log(response);
+
 
       if (response.status === 201) {
         setTimeout(() => {
@@ -177,6 +177,7 @@ function Support() {
       ...formData,
       [e.target.name]: e.target.value
     });
+    setError('')
   };
 
   return (
