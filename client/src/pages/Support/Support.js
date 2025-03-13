@@ -73,6 +73,7 @@ function Support() {
     phone: '',
     message: ''
   });
+  const [error, setError] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [settings, setSettings] = useState(false);
 
@@ -101,25 +102,31 @@ function Support() {
 
     return false;
   };
+  const [captchaValue, setCaptchaValue] = useState(null);
 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Validation
     if (!isValidName(formData.name)) {
-      alert("Invalid name: Must be at least 2 characters and contain only letters.");
+      setError('Invalid name: Must be at least 2 characters and contain only letters.')
+      // alert("Invalid name: Must be at least 2 characters and contain only letters.");
       return;
     }
     if (!isValidEmail(formData.email)) {
-      alert("Invalid email format.");
+      setError('Invalid email format.')
+      // alert("");
       return;
     }
     if (!isValidPhone(formData.phone)) {
-      alert("Invalid phone number: Must contain only digits and be 10-15 characters long.");
+      setError('Invalid phone number: Must contain only digits and be 10-15 characters long.')
+
+      // alert("Invalid phone number: Must contain only digits and be 10-15 characters long.");
       return;
     }
     if (containsProhibitedContent(formData.message)) {
-      alert("Your message contains prohibited words or links.");
+      setError("Your message contains prohibited words or links.")
+      // alert("Your message contains prohibited words or links.");
       return;
     }
 
@@ -128,7 +135,9 @@ function Support() {
         Name: formData.name,
         Email: formData.email,
         Phone: formData.phone,
-        Message: formData.message
+        Message: formData.message,
+        captchaValue
+
       }
       const response = await axios.post('https://api.dyfru.com/api/v1/support-request', data);
       console.log(response);
@@ -150,14 +159,17 @@ function Support() {
       })
 
     } catch (error) {
+      setError(error?.response?.data?.message || error?.response?.data?.error || error.message || "Error during form submission")
       console.error("Error during form submission:", error);
     }
-    console.log(formData);
+
   };
 
-  function onChange(value) {
-    console.log("Captcha value:", value);
-  }
+
+
+  const handleCaptchaChange = (value) => {
+    setCaptchaValue(value);
+  };
 
 
   const handleChange = (e) => {
@@ -308,10 +320,22 @@ function Support() {
                         className="mt-1 block w-full border rounded-lg border-gray-900 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 p-3 transition-colors duration-200"
                       ></textarea>
                     </div>
-                    <ReCAPTCHA
-                      sitekey="6LduBfMqAAAAAPDRkR-5__ccDCXJY6qZkoXxQB"
-                      onChange={onChange}
-                    />
+                    <div className='w-full'>
+
+                      <ReCAPTCHA
+                        style={{ width: "100%" }}
+                        bottomleft
+                        sitekey="6LduBfMqAAAAAPDRkR-5__ccDCXJY6qZkoXxQBs2" // Replace with your site key
+                        onChange={handleCaptchaChange}
+                      />
+                    </div>
+
+                    {error && (
+                      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-md flex items-center gap-2">
+                        <span className="text-lg">❌</span>
+                        <p className="text-sm font-medium">Error: {error}</p>
+                      </div>
+                    )}
 
                     <button
                       type="submit"

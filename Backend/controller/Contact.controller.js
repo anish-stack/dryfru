@@ -1,9 +1,21 @@
 const Contact = require("../models/Contact.model");
-
+const axios = require("axios")
 // Create a new contact
 exports.createContact = async (req, res) => {
     try {
         const data = req.body;
+        const secretKey = process.env.CAPTCHA_KEY;
+        const response = await axios.post(
+            `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${data?.captchaValue}`
+        );
+
+        if (!response.data.success) {
+            return res.status(400).json({
+                error: "Verification failed. Please complete the reCAPTCHA challenge and try again."
+            });
+        }
+
+
         const newContact = new Contact(data);
         await newContact.save();
         res.status(201).json({ message: "Contact created successfully", contact: newContact });
