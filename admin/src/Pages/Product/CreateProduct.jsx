@@ -165,22 +165,23 @@ const CreateProduct = () => {
 
     const handleSubmit = async () => {
         setLoading(true)
+        console.log(formData)
         const formDataObject = new FormData();
 
-       Object.entries(formData).forEach(([key, value]) => {
-        if (value && typeof value === 'object' && value.previewUrl) {
-            const { previewUrl, ...cleanedValue } = value;
-            formDataObject.append(key, cleanedValue.file || value);
-        } else if (key === 'Varient') {
-            formDataObject.append(key, JSON.stringify(value));
-        } else if (value !== null && value !== undefined) {
-            formDataObject.append(key, value);
-        }
-    });
+        Object.entries(formData).forEach(([key, value]) => {
+            if (value && typeof value === 'object' && value.previewUrl) {
+                const { previewUrl, ...cleanedValue } = value;
+                formDataObject.append(key, cleanedValue.file || value);
+            } else if (key === 'Varient') {
+                formDataObject.append(key, JSON.stringify(value));
+            } else if (value !== null && value !== undefined) {
+                formDataObject.append(key, value);
+            }
+        });
 
 
         try {
-            const data = await axios.post('https://api.dyfru.com/api/v1/add-new-product', formDataObject, {
+            const data = await axios.post('http://api.dyfru.com/api/v1/add-new-product', formDataObject, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

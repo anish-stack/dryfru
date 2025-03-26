@@ -8,14 +8,19 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Helper function to upload image buffer to Cloudinary
+const sanitizeFileName = (fileName) => {
+    return `${Date.now()}_${fileName.replace(/[^a-zA-Z0-9-_]/g, "_")}`;
+};
+
+
 const uploadBufferToCloudinary = (buffer, fileName) => {
     return new Promise((resolve, reject) => {
+        const sanitizedFileName = sanitizeFileName(fileName);
         const uploadStream = cloudinary.uploader.upload_stream(
             {
                 resource_type: 'auto',
                 folder: 'dryfruit/products',
-                public_id: fileName
+                public_id: sanitizedFileName
             },
             (error, result) => {
                 if (error) {
@@ -29,6 +34,7 @@ const uploadBufferToCloudinary = (buffer, fileName) => {
         streamifier.createReadStream(buffer).pipe(uploadStream);
     });
 };
+
 
 exports.createProduct = async (req, res) => {
     try {
@@ -48,11 +54,15 @@ exports.createProduct = async (req, res) => {
             isShowOnHomeScreen
         } = req.body;
 
+        console.log("req.body",req.body)
+        console.log("req.files",req.files)
+
         const uploadedImages = [];
 
 
         for (const file of req.files) {
             const result = await uploadBufferToCloudinary(file.buffer, file.originalname);
+            console.log(result)
             uploadedImages.push({
                 public_id: result.public_id,
                 url: result.secure_url
@@ -75,7 +85,7 @@ exports.createProduct = async (req, res) => {
         if (sub_category === null) {
             categoriesChile = null
         }
-        // Map uploaded images to specific fields
+      
         const productData = {
             product_name,
             product_description,
@@ -101,7 +111,7 @@ exports.createProduct = async (req, res) => {
 
         // Create product in the database
         const product = await ProductModel.create(productData);
-
+      console.log("Added product",product)
         res.status(201).json({
             success: true,
             message: "Product created successfully",
