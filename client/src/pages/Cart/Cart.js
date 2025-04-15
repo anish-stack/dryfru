@@ -316,7 +316,7 @@ const Cart = () => {
 
                                     {settings?.isTaxEnables && (
                                         <div className="flex justify-between text-gray-600">
-                                            <span>Tax  {`${settings?.taxRate}`}(18%)</span>
+                                            <span>Tax  ({`${settings?.taxRate}`}%)</span>
                                             <span>₹{tax || 0}</span>
                                         </div>
                                     )}
