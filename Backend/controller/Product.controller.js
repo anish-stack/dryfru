@@ -200,7 +200,7 @@ exports.getProductsBySubCategory = async (req, res) => {
 exports.getProductById = async (req, res) => {
     try {
         const { id } = req.params;
-        const product = await ProductModel.findById(id);
+        const product = await ProductModel.findById(id).populate('sub_category').populate('category');
 
         if (!product) {
             return res.status(404).json({

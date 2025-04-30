@@ -42,7 +42,7 @@ function ProductPage() {
   };
 
   const handleAddToCart = (product) => {
-    console.log(product)
+
     const selected = {
       product_id: product._id,
       product_name: product.product_name,

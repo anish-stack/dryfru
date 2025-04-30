@@ -39,7 +39,7 @@ function AppWithMaintenance() {
   if (isLoading) {
     // Display loader while settings are being fetched
     return (
-      <Loader/>
+      <Loader />
     );
   }
 
