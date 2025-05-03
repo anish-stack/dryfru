@@ -270,7 +270,8 @@ exports.updateProduct = async (req, res) => {
             isShowOnHomeScreen,
         } = req.body;
 
-        console.log(Varient)
+        console.log(req.body)
+ 
 
 
         if (product_name !== undefined) updateFields.product_name = product_name;

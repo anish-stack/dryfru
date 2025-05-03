@@ -249,29 +249,30 @@ const EditProduct = () => {
   const handleSubmit = async () => {
     setLoading(true);
     const formDataObject = new FormData();
-    console.log(formData)
+  
     try {
-      // Safely iterate over formData
+      // ✅ Append category and sub_category IDs explicitly
+      formDataObject.append('category', formData.category?._id || '');
+      formDataObject.append('sub_category', formData.sub_category?._id || '');
+  
+      // ✅ Append the rest of the fields except category/sub_category
       Object.entries(formData).forEach(([key, value]) => {
-        if (value === null || value === undefined) {
-          // Skip null or undefined values
-          return;
-        }
-
+        if (value === null || value === undefined) return;
+  
+        // Skip category and sub_category to avoid double appending
+        if (key === 'category' || key === 'sub_category') return;
+  
         if (typeof value === 'object' && value.file) {
-          // Handle file uploads
+          // For file uploads like ProductMainImage
           formDataObject.append(key, value.file);
         } else if (key === 'Varient') {
-          // Handle Varient field (JSON.stringify)
+          // Convert array of variants to JSON string
           formDataObject.append(key, JSON.stringify(value));
-          console.log(value);
         } else {
-          // Append other non-file fields as-is
           formDataObject.append(key, value);
         }
       });
-
-      // Send the form data via Axios
+  
       const { data } = await axios.post(
         `https://api.dyfru.com/api/v1/update-product/${id}`,
         formDataObject,
@@ -281,35 +282,29 @@ const EditProduct = () => {
           },
         }
       );
-
-
-
+  
       if (data.success) {
         setSuccess(true);
         setError('');
-        setLoading(false);
         console.log('Product updated successfully');
       } else {
         setSuccess(false);
-        setError(data.message);
-        setLoading(false);
+        setError(data.message || 'Something went wrong');
       }
-
-      // Reset state after 4 seconds
+  
+      setLoading(false);
       setTimeout(() => {
         setSuccess(false);
         setError('');
-        setLoading(false);
       }, 4000);
-      // window.location.reload()
     } catch (error) {
-      setSuccess(false);
-      setError(error.response?.data?.message || "An error occurred. Please try again.");
       setLoading(false);
+      setSuccess(false);
+      setError(error.response?.data?.message || 'An error occurred. Please try again.');
       console.error(error);
     }
   };
-
+  
 
 
   if (loading) {

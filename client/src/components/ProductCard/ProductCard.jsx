@@ -52,7 +52,7 @@ function ProductCard({bg=true , title='Explore Our Categories'}) {
                             </h2>
                             <div className="absolute -bottom-2 left-0 w-2/3 h-1 bg-gradient-to-r from-green-600 to-green-400" />
                         </div>
-                        <Button title={'View All'} />
+                        <Button redirectLink={'/Shop'} title={'View All'} />
                     </div>
 
                     <div className='hidden md:flex'>
